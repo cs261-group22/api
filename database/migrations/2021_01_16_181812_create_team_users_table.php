@@ -28,6 +28,8 @@ class CreateTeamUsersTable extends Migration
                   ->references('id')
                   ->on('users')
                   ->onDelete('cascade');
+
+            $table->primary(['team_id', 'user_id']);
         });
     }
 

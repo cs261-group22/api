@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateEventUsersTable extends Migration
+class CreateEventAttendeesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,9 @@ class CreateEventUsersTable extends Migration
      */
     public function up()
     {
-        Schema::create('event_users', function (Blueprint $table) {
+        Schema::create('event_attendees', function (Blueprint $table) {
             $table->unsignedBigInteger('event_id')->index();
             $table->unsignedBigInteger('user_id')->index();
-
-            $table->boolean('is_leader')->default(false);
 
             $table->foreign('event_id')
                 ->references('id')
@@ -28,6 +26,8 @@ class CreateEventUsersTable extends Migration
                 ->references('id')
                 ->on('users')
                 ->onDelete('cascade');
+
+            $table->primary(['event_id', 'user_id']);
         });
     }
 
@@ -38,6 +38,6 @@ class CreateEventUsersTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('event_users');
+        Schema::dropIfExists('event_attendees');
     }
 }

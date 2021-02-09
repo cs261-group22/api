@@ -24,6 +24,7 @@ class CreateEventsTable extends Migration
             $table->dateTime('ends_at')->nullable();
             $table->boolean('allow_guests')->default(true);
             $table->boolean('is_draft')->default(false);
+            $table->integer('max_sessions')->nullable();
 
             $table->timestamps();
 
