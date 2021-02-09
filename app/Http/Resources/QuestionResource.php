@@ -5,7 +5,7 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class TeamResource extends JsonResource
+class QuestionResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -17,14 +17,15 @@ class TeamResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'name' => $this->name,
-            'department' => $this->department,
+            'type' => $this->type,
+            'order' => $this->order,
+            'prompt' => $this->prompt,
+            'min_responses' => $this->min_responses,
+            'max_responses' => $this->max_responses,
 
-            'users' => UserResource::collection(
-                $this->whenLoaded('users')
+            'answers' => AnswerResource::collection(
+                $this->whenLoaded('answers')
             ),
-
-            'is_leader' => $this->whenPivotLoaded('team_users', fn () => (bool) $this->pivot->is_leader),
         ];
     }
 }

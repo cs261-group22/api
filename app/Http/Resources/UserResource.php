@@ -21,13 +21,14 @@ class UserResource extends JsonResource
             'name' => $this->name,
             'email' => $this->email,
             'is_admin' => $this->is_admin,
+            'is_guest' => $this->is_guest,
             'email_verified_at' => $this->email_verified_at,
 
-            'is_leader' => $this->whenPivotLoaded('team_users', function () {
-                return (bool) $this->pivot->is_leader;
-            }),
+            'teams' => TeamResource::collection(
+                $this->whenLoaded('teams')
+            ),
 
-            'teams' => TeamResource::collection($this->whenLoaded('teams')),
+            'is_leader' => $this->whenPivotLoaded('team_users', fn () => (bool) $this->pivot->is_leader),
         ];
     }
 }
