@@ -35,11 +35,8 @@ class Team extends Model
             return;
         }
 
-        $query->whereHas('users', function (Builder $query) use ($user) {
-            $query
-                ->where('is_leader', true)
-                ->where('id', $user->id);
-        });
+        $query->whereHas('users', fn (Builder $query) => $query->where('is_leader', true)->where('id', $user->id)
+        );
     }
 
     /**

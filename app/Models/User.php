@@ -8,6 +8,8 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -128,17 +130,56 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
-     * Get the events many-to-many relationship.
+     * Get the events hosted many-to-many relationship.
      *
      * @return BelongsToMany
      */
-    public function events()
+    public function eventsHosted()
     {
         return $this->belongsToMany(
             Event::class,
-            'event_users',
+            'event_hosts',
             'user_id',
             'event_id'
+        );
+    }
+
+    /**
+     * Get the events attended many-to-many relationship.
+     *
+     * @return BelongsToMany
+     */
+    public function eventsAttended()
+    {
+        return $this->belongsToMany(
+            Event::class,
+            'event_attendees',
+            'user_id',
+            'event_id'
+        );
+    }
+
+    /**
+     * Get the sessions one-to-many relationship.
+     *
+     * @return HasMany
+     */
+    public function sessions()
+    {
+        return $this->hasMany(
+            Session::class, 'user_id'
+        );
+    }
+
+    /**
+     * Get the responses one-to-many relationship.
+     *
+     * @return HasManyThrough
+     */
+    public function responses()
+    {
+        return $this->hasManyThrough(
+            Response::class, Session::class, 'user_id', 'session_id'
         );
     }
 }
