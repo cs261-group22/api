@@ -4,11 +4,23 @@ namespace App\Http\Controllers\Team;
 
 use App\Http\Controllers\Controller;
 use App\Models\Team;
+use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 
 class TeamUsersController extends Controller
 {
+    /**
+     * Updates the users in the provided team.
+     *
+     * @param Request $request
+     * @param int $id
+     * @return Application|ResponseFactory|Response
+     * @throws ValidationException
+     */
     public function update(Request $request, int $id)
     {
         $user = Auth::user();

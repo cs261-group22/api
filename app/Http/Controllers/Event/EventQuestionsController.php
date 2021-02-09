@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Event;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\UserResource;
+use App\Http\Resources\SessionResource;
 use App\Models\Event;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Routing\ResponseFactory;
@@ -12,10 +12,10 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 
-class EventUsersController extends Controller
+class EventQuestionsController extends Controller
 {
     /**
-     * Retrieves the users who have joined the provided event.
+     * Retrieves the questions for the specified event.
      *
      * @param Request $request
      * @param int $id
@@ -26,11 +26,11 @@ class EventUsersController extends Controller
         $user = Auth::user();
         $event = Event::findOrFail($id);
 
-        // Only admins and event hosts can view the joined users
+        // Only admins and event hosts can view the sessions for the event
         if (! $user->is_admin || ! $event->hostedByUser($user)) {
-            return response('You are not authorized to view the users for the specified event', 403);
+            return response('You are not authorized to view the sessions for the specified event', 403);
         }
 
-        return UserResource::collection($event->users);
+        return SessionResource::collection($event->sessions);
     }
 }

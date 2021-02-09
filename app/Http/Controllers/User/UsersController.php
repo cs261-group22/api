@@ -103,7 +103,7 @@ class UsersController extends Controller
      * @param int $id
      * @return UserResource
      */
-    public function update(Request $request, int $id)
+    public function update(Request $request, int $id): UserResource
     {
         // Only admins can update the details of other users
         if (! Auth::user()->is_admin) {

@@ -17,7 +17,7 @@ class PasswordRecoveryController extends Controller
      * @return Response
      * @throws ValidationException
      */
-    public function recover(Request $request)
+    public function recover(Request $request): Response
     {
         $this->validate($request, [
             'email' => 'required|email',

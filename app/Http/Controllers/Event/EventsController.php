@@ -21,7 +21,7 @@ class EventsController extends Controller
      *
      * @return AnonymousResourceCollection
      */
-    public function index()
+    public function index(): AnonymousResourceCollection
     {
         $user = Auth::user();
 
@@ -37,7 +37,7 @@ class EventsController extends Controller
      * @param string $code
      * @return EventResource
      */
-    public function show(string $code)
+    public function show(string $code): EventResource
     {
         $event = Event::where('code', $code)->firstOrFail();
 
@@ -137,7 +137,7 @@ class EventsController extends Controller
      * @param Request $request
      * @return HigherOrderTapProxy|mixed
      */
-    protected function populateEvent(Event $event, Request $request)
+    protected function populateEvent(Event $event, Request $request): HigherOrderTapProxy
     {
         return tap($event, function (Event $event) use ($request) {
             $event->name = $request->input('name');

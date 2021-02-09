@@ -19,6 +19,7 @@ class AuthController extends Controller
      *
      * @param Request $request
      * @return Application|ResponseFactory|JsonResponse|Response
+     * @throws ValidationException
      */
     public function loginEmployee(Request $request)
     {
@@ -47,7 +48,7 @@ class AuthController extends Controller
      *
      * @return JsonResponse
      */
-    public function loginGuest()
+    public function loginGuest(): JsonResponse
     {
         // Create a guest account with no name/email/password
         $user = User::create([

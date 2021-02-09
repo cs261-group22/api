@@ -21,7 +21,7 @@ class TeamsController extends Controller
      *
      * @return AnonymousResourceCollection
      */
-    public function index()
+    public function index(): AnonymousResourceCollection
     {
         $user = Auth::user();
 
