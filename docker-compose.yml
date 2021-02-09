@@ -1,18 +1,62 @@
 version: '3'
-services:
-  db:
-    image: postgres
-    environment:
-      - POSTGRES_DB=cs261
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
 
-  api:
-    build:
-      context: ./
-    volumes:
-      - .:/var/www
-    ports:
-      - "8080:80"
-    environment:
-      - APP_ENV=local
+services:
+    laravel.test:
+        build:
+            context: ./vendor/laravel/sail/runtimes/8.0
+            dockerfile: Dockerfile
+            args:
+                WWWGROUP: '${WWWGROUP}'
+        image: sail-8.0/app
+        ports:
+            - '${APP_PORT:-8080}:80'
+        environment:
+            WWWUSER: '${WWWUSER}'
+            LARAVEL_SAIL: 1
+        volumes:
+            - '.:/var/www/html'
+        networks:
+            - sail
+        depends_on:
+            - pgsql
+
+    ui:
+        image: 'node'
+        networks:
+            - sail
+        ports:
+            - '80:3000'
+        volumes:
+            - ./ui:/app:rw
+        environment:
+            - BASE_URL=http://localhost:8080
+            - NUXT_ENV_API_ROUTE=/api/v1
+            - NUXT_HOST=0.0.0.0
+            - NUXT_PORT=3000
+        entrypoint: [ "bash", "-c", "set -ex; cd /app && yarn install && yarn dev --verbose" ] 
+
+    pgsql:
+        image: postgres:13
+        ports:
+            - '${FORWARD_DB_PORT:-5432}:5432'
+        environment:
+            PGPASSWORD: '${DB_PASSWORD:-secret}'
+            POSTGRES_DB: '${DB_DATABASE}'
+            POSTGRES_USER: '${DB_USERNAME}'
+            POSTGRES_PASSWORD: '${DB_PASSWORD:-secret}'
+        volumes:
+            - 'sailpostgresql:/var/lib/postgresql/data'
+        networks:
+            - sail
+        healthcheck:
+             test: ["CMD", "pg_isready", "-q", "-d", "${DB_DATABASE}", "-U", "${DB_USERNAME}"]
+
+networks:
+    sail:
+        driver: bridge
+volumes:
+    sailpostgresql:
+       driver: local
+
+    sailredis:
+        driver: local
