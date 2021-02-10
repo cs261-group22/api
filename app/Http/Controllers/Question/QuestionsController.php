@@ -69,7 +69,7 @@ class QuestionsController extends Controller
      * @param int $id
      * @return Response
      */
-    public function update(Request $request, int $id): Response
+    public function update(Request $request, int $id)
     {
         $question = Question::findOrFail($id);
 
