@@ -79,7 +79,6 @@ class UserSeeder extends Seeder
         Event::forceCreate([
             'code' => Event::generateUniqueEventCode(),
             'description' => 'An event ready for feedback',
-            'host_id' => $admin->id,
             'name' => 'Live Event',
             'starts_at' => now(),
             'ends_at' => now(),
@@ -91,7 +90,6 @@ class UserSeeder extends Seeder
         Event::forceCreate([
             'code' => Event::generateUniqueEventCode(),
             'description' => 'An event with questions being prepared',
-            'host_id' => $admin->id,
             'name' => 'Draft Event',
             'starts_at' => now(),
             'ends_at' => now(),

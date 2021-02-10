@@ -3,8 +3,7 @@
 namespace App\Providers;
 
 use App\Events\PasswordRecoveryRequested;
-use App\Events\UserRegistered;
-use App\Events\UserRegisteredVerificationRequested;
+use App\Events\UserReferred;
 use App\Listeners\SendPasswordRecoveryLink;
 use App\Listeners\SendUserEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -17,12 +16,10 @@ class EventServiceProvider extends ServiceProvider
      * @var array
      */
     protected $listen = [
-        UserRegistered::class => [
+        UserReferred::class => [
             SendUserEmailVerificationNotification::class,
         ],
-        UserRegisteredVerificationRequested::class => [
-            SendUserEmailVerificationNotification::class,
-        ],
+
         PasswordRecoveryRequested::class => [
             SendPasswordRecoveryLink::class,
         ],

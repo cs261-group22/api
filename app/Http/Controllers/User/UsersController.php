@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\User;
 
-use App\Events\UserRegistered;
+use App\Events\UserReferred;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
 use App\Models\Team;
@@ -90,7 +90,7 @@ class UsersController extends Controller
 
         // Ensure verification emails are sent
         if (! $newUser->email_verified) {
-            event(new UserRegistered($newUser->refresh()));
+            event(new UserReferred($newUser->refresh()));
         }
 
         return new UserResource($newUser);

@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\User;
 
-use App\Events\UserRegisteredVerificationRequested;
+use App\Events\UserReferred;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Contracts\Foundation\Application;
@@ -25,7 +25,8 @@ class VerificationController extends Controller
     public function verify(Request $request)
     {
         $this->validate($request, [
-            'id' => 'required|integer',
+            'id' => 'required|string',
+            'name' => 'required|string',
             'email' => 'required|string',
             'timestamp' => 'required|string',
             'password' => 'required|string|same:password_confirmation',
@@ -44,13 +45,16 @@ class VerificationController extends Controller
             return response('The activation link has expired', 401);
         }
 
-        // Only mark the email as verified if it is not already
-        if (! $user->hasVerifiedEmail()) {
-            $user->markEmailAsVerified();
+        // Only allow verification if the user is not verified already
+        if ($user->hasVerifiedEmail()) {
+            return response('That account has already been validated', 403);
         }
 
-        // Hash and set the users password
+        $user->markEmailAsVerified();
+
+        // Hash and set the users password and name
         $user->update([
+            'name' => $request->input('name'),
             'password' => Hash::make($request->input('password')),
         ]);
 
@@ -82,7 +86,7 @@ class VerificationController extends Controller
             return response('Your account has already been verified');
         }
 
-        event(new UserRegisteredVerificationRequested($user));
+        event(new UserReferred($user));
 
         return response()->noContent();
     }

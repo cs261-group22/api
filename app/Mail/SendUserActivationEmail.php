@@ -27,7 +27,11 @@ class SendUserActivationEmail extends Mailable
         $subject = trans(':app Account Activation', ['app' => $app]);
         $siteUrl = config('cs261.pwa.url').config('cs261.pwa.email_verification_path');
 
-        $activationLink = $siteUrl.'/'.Crypt::encryptString(Carbon::now()->timestamp).'/'.Crypt::encryptString($this->user->id).'/'.Crypt::encryptString($this->user->email);
+        $token = Crypt::encryptString($this->user->id).'/'.
+                 Crypt::encryptString($this->user->email).'/'.
+                 Crypt::encryptString(Carbon::now()->timestamp);
+
+        $activationLink = "${siteUrl}?token=".base64_encode($token);
 
         return $this->to($this->user->email)
             ->markdown('email.user-activation')
@@ -36,7 +40,6 @@ class SendUserActivationEmail extends Mailable
                 [
                     'app' => $app,
                     'subject' => $subject,
-                    'name' => $this->user->name,
                     'activationLink' => $activationLink,
                     'mailFrom' => config('mail.from.address'),
                 ]

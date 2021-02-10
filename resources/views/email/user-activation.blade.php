@@ -1,10 +1,10 @@
 @component('mail::message')
-# Hi {{ $name }},
+# Hi,
 
-Welcome to *{{ $app }}*. Please click the link below to activate your account by verifying your email address.
+You have been invited to join {{ $app }}. Please click the link below to activate your account.
 
 @component('mail::button', ['url' => $activationLink])
-    Verify your email address
+    Activate Account
 @endcomponent
 
 Thanks,<br>
