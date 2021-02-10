@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\HigherOrderTapProxy;
 use App\Models\Question;
+use App\Models\Event;
 use App\Http\Resources\QuestionResource;
 use Illuminate\Support\Facades\Auth;
 
@@ -38,6 +39,14 @@ class QuestionsController extends Controller
         // $user = Auth::user();
         $this->validateQuestion($request);
         $question = $this->populateQuestion(new Question(), $request);
+
+        $event = Event::findOrFail($question->event_id);
+
+        // The user can only update events that they manage
+        if (! $event->hostedByUser(Auth::user())) {
+            return response('You must host this event to add questions to it', 403);
+        }
+
         $question->save();
 
         //Given information about the question and the event to associate it with, creates a new question.
