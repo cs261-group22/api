@@ -4,13 +4,13 @@ namespace App\Http\Controllers\Question;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\QuestionResource;
-use App\Models\Event;
 use App\Models\Question;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 
 class QuestionsController extends Controller
 {
@@ -18,20 +18,17 @@ class QuestionsController extends Controller
      * Retrieves the question with the specified ID.
      *
      * @param int $id
-     * @return Response
+     * @return QuestionResource|Application|ResponseFactory|Response
      */
     public function show(int $id)
     {
         $question = Question::findOrFail($id);
 
-        $event = $question->event;
-
         // The user can only update events that they manage
-        if (! $event->hostedByUser(Auth::user())) {
+        if (! $question->event->hostedByUser(Auth::user())) {
             return response('You must host this event to get questions from it', 403);
         }
-        // Retrieves information about the question with the provided ID.
-        // Accepts requests from the event hosts, or administrators.
+
         return new QuestionResource($question);
     }
 
@@ -39,25 +36,21 @@ class QuestionsController extends Controller
      * Creates a new question.
      *
      * @param Request $request
-     * @return Response
+     * @return QuestionResource|Application|ResponseFactory|Response
+     * @throws ValidationException
      */
     public function store(Request $request)
     {
-        // $user = Auth::user();
         $this->validateQuestion($request);
         $question = $this->populateQuestion(new Question(), $request);
 
-        $event = $question->event;
-
         // The user can only update events that they manage
-        if (! $event->hostedByUser(Auth::user())) {
+        if (! $question->event->hostedByUser(Auth::user())) {
             return response('You must host this event to add questions to it', 403);
         }
 
         $question->save();
 
-        //Given information about the question and the event to associate it with, creates a new question.
-        // Accepts requests from the event hosts, or administrators.
         return new QuestionResource($question);
     }
 
@@ -66,24 +59,22 @@ class QuestionsController extends Controller
      *
      * @param Request $request
      * @param int $id
-     * @return Response
+     * @return QuestionResource|Application|ResponseFactory|Response
+     * @throws ValidationException
      */
     public function update(Request $request, int $id)
     {
         $question = Question::findOrFail($id);
 
-        $event = $question->event;
-
         // The user can only update events that they manage
-        if (! $event->hostedByUser(Auth::user())) {
+        if (! $question->event->hostedByUser(Auth::user())) {
             return response('You must host this event to update questions in it', 403);
         }
 
         $this->validateQuestion($request);
         $question = $this->populateQuestion($question, $request);
         $question->save();
-        // Updates the content of the question with the provided ID.
-        // Accepts requests from the event hosts, or administrators.
+
         return new QuestionResource($question);
     }
 
@@ -96,16 +87,14 @@ class QuestionsController extends Controller
     public function destroy(int $id)
     {
         $question = Question::findOrFail($id);
-        $event = $question->event;
 
         // The user can only update events that they manage
-        if (! $event->hostedByUser(Auth::user())) {
+        if (! $question->event->hostedByUser(Auth::user())) {
             return response('You must host this event to delete questions from it', 403);
         }
 
         $question->delete();
-        // Deletes the question with the provided ID.
-        // Accepts requests from the event hosts, or administrators.
+
         return response()->noContent();
     }
 

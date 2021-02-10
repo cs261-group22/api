@@ -10,6 +10,7 @@ use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 
 class AnswersController extends Controller
 {
@@ -17,20 +18,18 @@ class AnswersController extends Controller
      * Retrieves the answer with the specified ID.
      *
      * @param int $id
-     * @return Response
+     * @return AnswerResource|Response
      */
     public function show(int $id)
     {
         $answer = Answer::findOrFail($id);
-        $question = $answer->question;
-        $event = $question->event;
+        $event = $answer->question->event;
 
         // The user can only show answers that they manage
         if (! $event->hostedByUser(Auth::user())) {
             return response('You must host this event to get the answers of questions from it', 403);
         }
-        // Retrieves information about the answer with the provided ID.
-        // Accepts requests from the event hosts, or administrators.
+
         return new AnswerResource($answer);
     }
 
@@ -38,15 +37,15 @@ class AnswersController extends Controller
      * Creates a new answer.
      *
      * @param Request $request
-     * @return Response
+     * @return AnswerResource|Response
+     * @throws ValidationException
      */
     public function store(Request $request)
     {
         $this->validateAnswer($request);
 
         $answer = $this->populateAnswer(new Answer(), $request);
-        $question = $answer->question;
-        $event = $question->event;
+        $event = $answer->question->event;
 
         // The user can only update events that they manage
         if (! $event->hostedByUser(Auth::user())) {
@@ -54,8 +53,7 @@ class AnswersController extends Controller
         }
 
         $answer->save();
-        // Given information about the answer and the question to associate it with, creates a new answer.
-        // Accepts requests from the event hosts, or administrators.
+
         return new AnswerResource($answer);
     }
 
@@ -64,13 +62,13 @@ class AnswersController extends Controller
      *
      * @param Request $request
      * @param int $id
-     * @return Response
+     * @return AnswerResource|Application|ResponseFactory|Response
+     * @throws ValidationException
      */
     public function update(Request $request, int $id)
     {
         $answer = Answer::findOrFail($id);
-        $question = $answer->question;
-        $event = $question->event;
+        $event = $answer->question->event;
 
         // The user can only update answers that they manage
         if (! $event->hostedByUser(Auth::user())) {
@@ -80,8 +78,7 @@ class AnswersController extends Controller
         $this->validateAnswer($request);
         $answer = $this->populateAnswer($answer, $request);
         $answer->save();
-        // Updates the content of the answer with the provided ID.
-        // Accepts requests from the event hosts, or administrators.
+
         return new AnswerResource($answer);
     }
 
@@ -94,8 +91,7 @@ class AnswersController extends Controller
     public function destroy(int $id)
     {
         $answer = Answer::findOrFail($id);
-        $question = $answer->question;
-        $event = $question->event;
+        $event = $answer->question->event;
 
         // The user can only show answers that they manage
         if (! $event->hostedByUser(Auth::user())) {
@@ -104,8 +100,6 @@ class AnswersController extends Controller
 
         $answer->delete();
 
-        // Deletes the answer with the provided ID.
-        // Accepts requests from the event hosts, or administrators.
         return response()->noContent();
     }
 
