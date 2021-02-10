@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Answer;
 
 use App\Http\Controllers\Controller;
-use App\Models\Answer;
 use App\Http\Resources\AnswerResource;
+use App\Models\Answer;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Http\Request;
@@ -26,7 +26,7 @@ class AnswersController extends Controller
         $event = $question->event;
 
         // The user can only show answers that they manage
-        if (!$event->hostedByUser(Auth::user())) {
+        if (! $event->hostedByUser(Auth::user())) {
             return response('You must host this event to get the answers of questions from it', 403);
         }
         // Retrieves information about the answer with the provided ID.
@@ -49,7 +49,7 @@ class AnswersController extends Controller
         $event = $question->event;
 
         // The user can only update events that they manage
-        if (!$event->hostedByUser(Auth::user())) {
+        if (! $event->hostedByUser(Auth::user())) {
             return response('You must host this event to add answers a question from it', 403);
         }
 
@@ -72,13 +72,13 @@ class AnswersController extends Controller
         $question = $answer->question;
         $event = $question->event;
 
-        // The user can only show answers that they manage
-        if (!$event->hostedByUser(Auth::user())) {
+        // The user can only update answers that they manage
+        if (! $event->hostedByUser(Auth::user())) {
             return response('You must host this event to update the answers of questions from it', 403);
         }
 
         $this->validateAnswer($request);
-        $answer = $this->populateAnswer($answer,$request);
+        $answer = $this->populateAnswer($answer, $request);
         $answer->save();
         // Updates the content of the answer with the provided ID.
         // Accepts requests from the event hosts, or administrators.
@@ -93,6 +93,17 @@ class AnswersController extends Controller
      */
     public function destroy(int $id)
     {
+        $answer = Answer::findOrFail($id);
+        $question = $answer->question;
+        $event = $question->event;
+
+        // The user can only show answers that they manage
+        if (! $event->hostedByUser(Auth::user())) {
+            return response('You must host this event to update the answers of questions from it', 403);
+        }
+
+        $answer->delete();
+
         // Deletes the answer with the provided ID.
         // Accepts requests from the event hosts, or administrators.
         return response()->noContent();
