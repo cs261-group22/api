@@ -43,9 +43,11 @@ class AnswersController extends Controller
     public function store(Request $request)
     {
         $this->validateAnswer($request);
+
         $answer = $this->populateAnswer(new Answer(), $request);
         $question = $answer->question;
         $event = $question->event;
+
         // The user can only update events that they manage
         if (!$event->hostedByUser(Auth::user())) {
             return response('You must host this event to add answers a question from it', 403);
@@ -64,11 +66,23 @@ class AnswersController extends Controller
      * @param int $id
      * @return Response
      */
-    public function update(Request $request, int $id): Response
+    public function update(Request $request, int $id)
     {
+        $answer = Answer::findOrFail($id);
+        $question = $answer->question;
+        $event = $question->event;
+
+        // The user can only show answers that they manage
+        if (!$event->hostedByUser(Auth::user())) {
+            return response('You must host this event to update the answers of questions from it', 403);
+        }
+
+        $this->validateAnswer($request);
+        $answer = $this->populateAnswer($answer,$request);
+        $answer->save();
         // Updates the content of the answer with the provided ID.
         // Accepts requests from the event hosts, or administrators.
-        return response()->noContent();
+        return new AnswerResource($answer);
     }
 
     /**
