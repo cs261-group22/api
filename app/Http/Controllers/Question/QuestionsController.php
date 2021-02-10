@@ -28,7 +28,7 @@ class QuestionsController extends Controller
         $event = Event::findOrFail($question->event_id);
 
         // The user can only update events that they manage
-        if (! $event->hostedByUser(Auth::user())) {
+        if (!$event->hostedByUser(Auth::user())) {
             return response('You must host this event to get questions to it', 403);
         }
         // Retrieves information about the question with the provided ID.
@@ -51,7 +51,7 @@ class QuestionsController extends Controller
         $event = Event::findOrFail($question->event_id);
 
         // The user can only update events that they manage
-        if (! $event->hostedByUser(Auth::user())) {
+        if (!$event->hostedByUser(Auth::user())) {
             return response('You must host this event to add questions to it', 403);
         }
 
@@ -71,9 +71,21 @@ class QuestionsController extends Controller
      */
     public function update(Request $request, int $id): Response
     {
+        $question = Question::findOrFail($id);
+
+        $event = Event::findOrFail($question->event_id);
+
+        // The user can only update events that they manage
+        if (!$event->hostedByUser(Auth::user())) {
+            return response('You must host this event to update questions in it', 403);
+        }
+
+        $this->validateQuestion($request);
+        $question = $this->populateQuestion($question, $request);
+        $question->save();
         // Updates the content of the question with the provided ID.
         // Accepts requests from the event hosts, or administrators.
-        return response()->noContent();
+        return new QuestionResource($question);
     }
 
     /**
@@ -88,7 +100,7 @@ class QuestionsController extends Controller
         $event = Event::findOrFail($question->event_id);
 
         // The user can only update events that they manage
-        if (! $event->hostedByUser(Auth::user())) {
+        if (!$event->hostedByUser(Auth::user())) {
             return response('You must host this event to delete questions from it', 403);
         }
 
