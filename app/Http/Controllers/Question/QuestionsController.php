@@ -76,6 +76,15 @@ class QuestionsController extends Controller
      */
     public function destroy(int $id)
     {
+        $question = Question::findOrFail($id);
+        $event = Event::findOrFail($question->event_id);
+
+        // The user can only update events that they manage
+        if (! $event->hostedByUser(Auth::user())) {
+            return response('You must host this event to delete questions from it', 403);
+        }
+
+        $question->delete();
         // Deletes the question with the provided ID.
         // Accepts requests from the event hosts, or administrators.
         return response()->noContent();
