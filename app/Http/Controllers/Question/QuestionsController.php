@@ -7,6 +7,7 @@ use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
 
 class QuestionsController extends Controller
 {
@@ -31,6 +32,8 @@ class QuestionsController extends Controller
      */
     public function store(Request $request): Response
     {
+        // $user = Auth::user();
+        $this->validateQuestion($request);
         // Given information about the question and the event to associate it with, creates a new question.
         // Accepts requests from the event hosts, or administrators.
         return response()->noContent();
@@ -61,5 +64,25 @@ class QuestionsController extends Controller
         // Deletes the question with the provided ID.
         // Accepts requests from the event hosts, or administrators.
         return response()->noContent();
+    }
+
+
+    /**
+     * Validates the incoming request.
+     *
+     * @param Request $request
+     * @throws ValidationException
+     */
+    protected function validateQuestion(Request $request)
+    {
+        $this->validate($request, [
+            'id' => 'required|integer',
+            'event_id' => 'required|exists:events,id',
+            'type' => 'required|in:free_text,multiple_choice',
+            'prompt' => 'required|string',
+            'min_responses' => 'nullable|integer',
+            'max_responses' => 'nullable|integer|gte:min_responses',
+            'order' => 'required|integer',
+        ]);
     }
 }
