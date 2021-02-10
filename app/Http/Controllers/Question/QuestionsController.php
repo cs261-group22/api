@@ -38,6 +38,7 @@ class QuestionsController extends Controller
         // $user = Auth::user();
         $this->validateQuestion($request);
         $question = $this->populateQuestion(new Question(), $request);
+        $question->save();
 
         //Given information about the question and the event to associate it with, creates a new question.
         // Accepts requests from the event hosts, or administrators.
