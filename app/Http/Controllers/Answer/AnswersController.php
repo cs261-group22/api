@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Answer;
 
 use App\Http\Controllers\Controller;
+use App\Models\Answer;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Http\Request;
@@ -76,5 +77,21 @@ class AnswersController extends Controller
             'value' => 'required|string',
             'order' => 'required|integer',
         ]);
+    }
+
+     /**
+     * Populates an answer with data from the provided request.
+     *
+     * @param Answer $answer
+     * @param Request $request
+     * @return Answer|mixed
+     */
+    protected function populateAnswer(Answer $answer, Request $request): Answer
+    {
+        return tap($answer, function (Answer $answer) use ($request) {
+            $answer->value = $request->input('value');
+            $answer->order = $request->input('order');
+            $answer->question_id = $request->input('question_id');
+        });
     }
 }
