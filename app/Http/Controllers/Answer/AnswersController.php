@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Answer;
 
 use App\Http\Controllers\Controller;
 use App\Models\Answer;
+use App\Http\Resources\AnswerResource;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
 
 class AnswersController extends Controller
 {
@@ -30,11 +32,21 @@ class AnswersController extends Controller
      * @param Request $request
      * @return Response
      */
-    public function store(Request $request): Response
+    public function store(Request $request)
     {
+        $this->validateAnswer($request);
+        $answer = $this->populateAnswer(new Answer(), $request);
+        $question = $answer->question;
+        $event = $question->event;
+        // The user can only update events that they manage
+        if (!$event->hostedByUser(Auth::user())) {
+            return response('You must host this event to add answers a question from it', 403);
+        }
+
+        $answer->save();
         // Given information about the answer and the question to associate it with, creates a new answer.
         // Accepts requests from the event hosts, or administrators.
-        return response()->noContent();
+        return new AnswerResource($answer);
     }
 
     /**
@@ -79,7 +91,7 @@ class AnswersController extends Controller
         ]);
     }
 
-     /**
+    /**
      * Populates an answer with data from the provided request.
      *
      * @param Answer $answer
