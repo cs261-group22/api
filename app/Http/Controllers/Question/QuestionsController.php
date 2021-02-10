@@ -7,6 +7,9 @@ use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\HigherOrderTapProxy;
+use App\Models\Question;
+use App\Http\Resources\QuestionResource;
 use Illuminate\Support\Facades\Auth;
 
 class QuestionsController extends Controller
@@ -30,13 +33,15 @@ class QuestionsController extends Controller
      * @param Request $request
      * @return Response
      */
-    public function store(Request $request): Response
+    public function store(Request $request)
     {
         // $user = Auth::user();
         $this->validateQuestion($request);
-        // Given information about the question and the event to associate it with, creates a new question.
+        $question = $this->populateQuestion(new Question(), $request);
+
+        //Given information about the question and the event to associate it with, creates a new question.
         // Accepts requests from the event hosts, or administrators.
-        return response()->noContent();
+        return new QuestionResource($question);
     }
 
     /**
@@ -84,5 +89,25 @@ class QuestionsController extends Controller
             'max_responses' => 'nullable|integer|gte:min_responses',
             'order' => 'required|integer',
         ]);
+    }
+
+
+    /**
+     * Populates a question with data from the provided request.
+     *
+     * @param Question $question
+     * @param Request $request
+     * @return Question|mixed
+     */
+    protected function populateQuestion(Question $question, Request $request): Question
+    {
+        return tap($question, function (Question $question) use ($request) {
+            $question->type = $request->input('type');
+            $question->order = $request->input('order');
+            $question->prompt = $request->input('prompt');
+            $question->event_id = $request->input('event_id');
+            $question->min_responses = $request->input('min_responses');
+            $question->max_responses = $request->input('max_responses');
+        });
     }
 }
