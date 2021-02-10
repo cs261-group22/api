@@ -24,6 +24,13 @@ class QuestionsController extends Controller
     public function show(int $id)
     {
         $question = Question::findOrFail($id);
+
+        $event = Event::findOrFail($question->event_id);
+
+        // The user can only update events that they manage
+        if (! $event->hostedByUser(Auth::user())) {
+            return response('You must host this event to add questions to it', 403);
+        }
         // Retrieves information about the question with the provided ID.
         // Accepts requests from the event hosts, or administrators.
         return new QuestionResource($question);
