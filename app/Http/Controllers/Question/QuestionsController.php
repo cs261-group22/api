@@ -24,7 +24,7 @@ class QuestionsController extends Controller
     {
         $question = Question::findOrFail($id);
 
-        $event = Event::findOrFail($question->event_id);
+        $event = $question->event;
 
         // The user can only update events that they manage
         if (! $event->hostedByUser(Auth::user())) {
@@ -47,7 +47,7 @@ class QuestionsController extends Controller
         $this->validateQuestion($request);
         $question = $this->populateQuestion(new Question(), $request);
 
-        $event = Event::findOrFail($question->event_id);
+        $event = $question->event;
 
         // The user can only update events that they manage
         if (! $event->hostedByUser(Auth::user())) {
@@ -72,7 +72,7 @@ class QuestionsController extends Controller
     {
         $question = Question::findOrFail($id);
 
-        $event = Event::findOrFail($question->event_id);
+        $event = $question->event;
 
         // The user can only update events that they manage
         if (! $event->hostedByUser(Auth::user())) {
@@ -96,7 +96,7 @@ class QuestionsController extends Controller
     public function destroy(int $id)
     {
         $question = Question::findOrFail($id);
-        $event = Event::findOrFail($question->event_id);
+        $event = $question->event;
 
         // The user can only update events that they manage
         if (! $event->hostedByUser(Auth::user())) {
