@@ -29,7 +29,7 @@ class QuestionsController extends Controller
 
         // The user can only update events that they manage
         if (! $event->hostedByUser(Auth::user())) {
-            return response('You must host this event to add questions to it', 403);
+            return response('You must host this event to get questions to it', 403);
         }
         // Retrieves information about the question with the provided ID.
         // Accepts requests from the event hosts, or administrators.
