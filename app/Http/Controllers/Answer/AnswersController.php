@@ -62,4 +62,19 @@ class AnswersController extends Controller
         // Accepts requests from the event hosts, or administrators.
         return response()->noContent();
     }
+
+    /**
+     * Validates the incoming request.
+     *
+     * @param Request $request
+     * @throws ValidationException
+     */
+    protected function validateAnswer(Request $request)
+    {
+        $this->validate($request, [
+            'question_id' => 'required|exists:questions,id',
+            'value' => 'required',
+            'order' => 'required|integer',
+        ]);
+    }
 }
