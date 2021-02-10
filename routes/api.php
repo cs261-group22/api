@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Answer\AnswersController;
 use App\Http\Controllers\Event\EventHostsController;
+use App\Http\Controllers\Event\EventQuestionsController;
 use App\Http\Controllers\Event\EventsController;
 use App\Http\Controllers\Event\EventSessionsController;
 use App\Http\Controllers\Question\QuestionAnswersController;
@@ -26,7 +27,7 @@ Route::post('/email/verify', [VerificationController::class, 'verify'])->name('v
 Route::post('/password/reset', [PasswordRestorationController::class, 'reset'])->name('password.reset');
 Route::post('/password/recover', [PasswordRecoveryController::class, 'recover'])->name('password.request');
 
-Route::get('/events/code/{code}', [QuestionsController::class, 'show'])->name('events.show');
+Route::get('/events/code/{code}', [EventsController::class, 'show'])->name('events.show');
 
 // Protected routes that require the user to be logged in
 Route::middleware('auth:sanctum')->group(function () {
@@ -53,7 +54,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('/events/{id}/hosts', [EventHostsController::class, 'update'])->name('events.hosts.update');
     Route::get('/events/{id}/sessions', [EventSessionsController::class, 'index'])->name('events.sessions.index');
     Route::post('/events/{id}/sessions', [EventSessionsController::class, 'store'])->name('events.sessions.store');
-    Route::get('/events/{id}/questions', [EventSessionsController::class, 'index'])->name('events.questions.index');
+    Route::get('/events/{id}/questions', [EventQuestionsController::class, 'index'])->name('events.questions.index');
 
     Route::post('/questions', [QuestionsController::class, 'store'])->name('questions.store');
 

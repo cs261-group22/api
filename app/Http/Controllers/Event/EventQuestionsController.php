@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Event;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\SessionResource;
+use App\Http\Resources\QuestionResource;
 use App\Models\Event;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Routing\ResponseFactory;
@@ -31,6 +31,6 @@ class EventQuestionsController extends Controller
             return response('You are not authorized to view the sessions for the specified event', 403);
         }
 
-        return SessionResource::collection($event->sessions);
+        return QuestionResource::collection($event->questions);
     }
 }
