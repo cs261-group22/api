@@ -3,14 +3,13 @@
 namespace App\Http\Controllers\Question;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\QuestionResource;
+use App\Models\Event;
+use App\Models\Question;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Support\HigherOrderTapProxy;
-use App\Models\Question;
-use App\Models\Event;
-use App\Http\Resources\QuestionResource;
 use Illuminate\Support\Facades\Auth;
 
 class QuestionsController extends Controller
@@ -28,7 +27,7 @@ class QuestionsController extends Controller
         $event = Event::findOrFail($question->event_id);
 
         // The user can only update events that they manage
-        if (!$event->hostedByUser(Auth::user())) {
+        if (! $event->hostedByUser(Auth::user())) {
             return response('You must host this event to get questions from it', 403);
         }
         // Retrieves information about the question with the provided ID.
@@ -51,7 +50,7 @@ class QuestionsController extends Controller
         $event = Event::findOrFail($question->event_id);
 
         // The user can only update events that they manage
-        if (!$event->hostedByUser(Auth::user())) {
+        if (! $event->hostedByUser(Auth::user())) {
             return response('You must host this event to add questions to it', 403);
         }
 
@@ -76,7 +75,7 @@ class QuestionsController extends Controller
         $event = Event::findOrFail($question->event_id);
 
         // The user can only update events that they manage
-        if (!$event->hostedByUser(Auth::user())) {
+        if (! $event->hostedByUser(Auth::user())) {
             return response('You must host this event to update questions in it', 403);
         }
 
@@ -100,7 +99,7 @@ class QuestionsController extends Controller
         $event = Event::findOrFail($question->event_id);
 
         // The user can only update events that they manage
-        if (!$event->hostedByUser(Auth::user())) {
+        if (! $event->hostedByUser(Auth::user())) {
             return response('You must host this event to delete questions from it', 403);
         }
 
@@ -109,7 +108,6 @@ class QuestionsController extends Controller
         // Accepts requests from the event hosts, or administrators.
         return response()->noContent();
     }
-
 
     /**
      * Validates the incoming request.
@@ -128,7 +126,6 @@ class QuestionsController extends Controller
             'order' => 'required|integer',
         ]);
     }
-
 
     /**
      * Populates a question with data from the provided request.
