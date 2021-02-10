@@ -120,7 +120,6 @@ class QuestionsController extends Controller
     protected function validateQuestion(Request $request)
     {
         $this->validate($request, [
-            'id' => 'required|integer',
             'event_id' => 'required|exists:events,id',
             'type' => 'required|in:free_text,multiple_choice',
             'prompt' => 'required|string',
