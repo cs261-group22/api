@@ -11,7 +11,6 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\HigherOrderTapProxy;
 use Illuminate\Validation\ValidationException;
 
 class EventsController extends Controller
@@ -60,9 +59,9 @@ class EventsController extends Controller
 
         // Generate a unique code for the event and associate the host
         $event->code = Event::generateUniqueEventCode();
-        $event->host()->associate($user);
-
         $event->save();
+
+        $event->hosts()->attach($user->id);
 
         return new EventResource($event);
     }
@@ -135,9 +134,9 @@ class EventsController extends Controller
      *
      * @param Event $event
      * @param Request $request
-     * @return HigherOrderTapProxy|mixed
+     * @return Event
      */
-    protected function populateEvent(Event $event, Request $request): HigherOrderTapProxy
+    protected function populateEvent(Event $event, Request $request): Event
     {
         return tap($event, function (Event $event) use ($request) {
             $event->name = $request->input('name');

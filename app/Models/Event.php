@@ -106,7 +106,7 @@ class Event extends Model
             User::class,
             'event_hosts',
             'event_id',
-            'host_id'
+            'user_id'
         );
     }
 
