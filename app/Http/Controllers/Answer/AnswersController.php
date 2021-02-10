@@ -73,7 +73,7 @@ class AnswersController extends Controller
     {
         $this->validate($request, [
             'question_id' => 'required|exists:questions,id',
-            'value' => 'required',
+            'value' => 'required|string',
             'order' => 'required|integer',
         ]);
     }
