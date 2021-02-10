@@ -21,11 +21,12 @@ class QuestionsController extends Controller
      * @param int $id
      * @return Response
      */
-    public function show(int $id): Response
+    public function show(int $id)
     {
+        $question = Question::findOrFail($id);
         // Retrieves information about the question with the provided ID.
         // Accepts requests from the event hosts, or administrators.
-        return response()->noContent();
+        return new QuestionResource($question);
     }
 
     /**
