@@ -5,13 +5,13 @@ namespace App\Http\Controllers\Event;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\SessionResource;
 use App\Models\Event;
+use App\Models\Session;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
-use App\Models\Session;
 
 class EventSessionsController extends Controller
 {
@@ -28,7 +28,7 @@ class EventSessionsController extends Controller
         $event = Event::findOrFail($id);
 
         // Only admins and event hosts can view the sessions for the event
-        if (!$user->is_admin || !$event->hostedByUser($user)) {
+        if (! $user->is_admin || ! $event->hostedByUser($user)) {
             return response('You are not authorized to view the sessions for the specified event', 403);
         }
 
