@@ -31,14 +31,31 @@ class EventsController extends Controller
     }
 
     /**
+     * Retrieves the event with the provided ID.
+     *
+     * @param int $id
+     * @return EventResource
+     */
+    public function show(int $id): EventResource
+    {
+        $event = Event::with('questions', 'questions.answers')
+            ->where('id', $id)
+            ->firstOrFail();
+
+        return new EventResource($event);
+    }
+
+    /**
      * Retrieves the event with the provided code.
      *
      * @param string $code
      * @return EventResource
      */
-    public function show(string $code): EventResource
+    public function code(string $code): EventResource
     {
-        $event = Event::where('code', $code)->firstOrFail();
+        $event = Event::with('questions', 'questions.answers')
+            ->where('code', $code)
+            ->firstOrFail();
 
         return new EventResource($event);
     }

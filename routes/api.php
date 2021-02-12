@@ -27,7 +27,7 @@ Route::post('/email/verify', [VerificationController::class, 'verify'])->name('v
 Route::post('/password/reset', [PasswordRestorationController::class, 'reset'])->name('password.reset');
 Route::post('/password/recover', [PasswordRecoveryController::class, 'recover'])->name('password.request');
 
-Route::get('/events/code/{code}', [EventsController::class, 'show'])->name('events.show');
+Route::get('/events/code/{code}', [EventsController::class, 'code'])->name('events.show');
 
 // Protected routes that require the user to be logged in
 Route::middleware('auth:sanctum')->group(function () {
@@ -48,6 +48,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/events', [EventsController::class, 'index'])->name('events.index');
     Route::post('/events', [EventsController::class, 'store'])->name('events.store');
 
+    Route::get('/events/{id}', [EventsController::class, 'show'])->name('events.show');
     Route::put('/events/{id}', [EventsController::class, 'update'])->name('events.update');
     Route::delete('/events/{id}', [EventsController::class, 'destroy'])->name('events.destroy');
     Route::get('/events/{id}/hosts', [EventHostsController::class, 'index'])->name('events.hosts.index');

@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Question;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -23,8 +24,9 @@ class QuestionResource extends JsonResource
             'min_responses' => $this->min_responses,
             'max_responses' => $this->max_responses,
 
-            'answers' => AnswerResource::collection(
-                $this->whenLoaded('answers')
+            'answers' => $this->when(
+                $this->type === Question::TYPE_MULTIPLE_CHOICE,
+                fn () => AnswerResource::collection($this->whenLoaded('answers'))
             ),
         ];
     }
