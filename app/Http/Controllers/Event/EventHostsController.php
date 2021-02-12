@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Event;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
 use App\Models\Event;
-use App\Models\Team;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Http\Request;
@@ -37,7 +36,7 @@ class EventHostsController extends Controller
     }
 
     /**
-     * Updates the hosts for the provided team.
+     * Updates the hosts for the provided event.
      *
      * @param Request $request
      * @param int $id
@@ -49,7 +48,7 @@ class EventHostsController extends Controller
         $user = Auth::user();
         $event = Event::findOrFail($id);
 
-        // Only admins and team leaders can modify users in a team
+        // Only admins and event hosts can modify hosts for an event
         if (! $user->is_admin || ! $event->hostedByUser($user)) {
             return response('You are not authorized to modify the hosts for this event', 403);
         }
@@ -60,7 +59,7 @@ class EventHostsController extends Controller
         ]);
 
         // Overwrite the hosts for the event from the provided array
-        $event->users()->sync(
+        $event->hosts()->sync(
             $request->input('hosts')
         );
 
