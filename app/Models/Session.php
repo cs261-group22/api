@@ -28,7 +28,7 @@ class Session extends Model
      * @var array
      */
     protected $casts = [
-        'started_at' => 'date',
+        'started_at' => 'datetime',
         'is_submitted' => 'boolean',
     ];
 
