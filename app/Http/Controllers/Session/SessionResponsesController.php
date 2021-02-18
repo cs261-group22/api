@@ -4,7 +4,10 @@ namespace App\Http\Controllers\Session;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
+// use Illuminate\Http\Response;
+use App\Http\Resources\ResponseResource;
+use App\Models\Session;
+use App\Models\Response;
 
 class SessionResponsesController extends Controller
 {
@@ -14,11 +17,12 @@ class SessionResponsesController extends Controller
      * @param int $id
      * @return Response
      */
-    public function show(int $id): Response
+    public function index(int $id)
     {
+        $responses = Response::get()->where('session_id', '==', $id);
         // Retrieves a list of responses recorded for the session with the provided ID.
         // Accepts requests from the user that own the session, users that host the event associated with the session, or administrators.
-        return response()->noContent();
+        return ResponseResource::collection($responses);
     }
 
     /**
@@ -27,7 +31,7 @@ class SessionResponsesController extends Controller
      * @param Request $request
      * @return Response
      */
-    public function store(Request $request): Response
+    public function update(Request $request)
     {
         // Given a question and answer, creates and associates a new response with the provided session.
         // Accepts requests from the user that owns the session.
