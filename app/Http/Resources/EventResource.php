@@ -26,8 +26,8 @@ class EventResource extends JsonResource
             'allow_guests' => $this->allow_guests,
             'max_sessions' => $this->max_sessions,
 
-            'host' => new UserResource(
-                $this->whenLoaded('host')
+            'hosts' => UserResource::collection(
+                $this->whenLoaded('hosts')
             ),
 
             'users' => UserResource::collection(
