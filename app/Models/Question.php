@@ -2,14 +2,17 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Spatie\EloquentSortable\Sortable;
+use Spatie\EloquentSortable\SortableTrait;
 
-class Question extends Model
+class Question extends Model implements Sortable
 {
-    use HasFactory;
+    use HasFactory, SortableTrait;
 
     // Question type constants
     const TYPE_FREE_TEXT = 'free_text';
@@ -28,6 +31,25 @@ class Question extends Model
         'min_responses',
         'max_responses',
     ];
+
+    /**
+     * The model's ordering options.
+     *
+     * @var array
+     */
+    public $sortable = [
+        'order_column_name' => 'order',
+    ];
+
+    /**
+     * Build the query used to group questions when ordering.
+     *
+     * @return Builder
+     */
+    public function buildSortQuery()
+    {
+        return static::query()->where('event_id', $this->event_id);
+    }
 
     /**
      * Get the event one-to-many relationship.
@@ -60,8 +82,6 @@ class Question extends Model
      */
     public function answers()
     {
-        return $this->hasMany(
-            Answer::class, 'question_id'
-        );
+        return $this->hasMany(Answer::class, 'question_id')->ordered();
     }
 }

@@ -83,6 +83,28 @@ class AnswersController extends Controller
     }
 
     /**
+     * Move the specified answer.
+     *
+     * @param Request $request
+     * @param int $id
+     * @return Response
+     */
+    public function move(Request $request, $id)
+    {
+        $answer = Answer::findOrFail($id);
+
+        $request->validate([
+            'direction' => 'required|in:up,down',
+        ]);
+
+        $request->input('direction') === 'down'
+            ? $answer->moveOrderDown()
+            : $answer->moveOrderUp();
+
+        return response()->noContent();
+    }
+
+    /**
      * Deletes the specified answer.
      *
      * @param int $id
@@ -113,8 +135,7 @@ class AnswersController extends Controller
     {
         $this->validate($request, [
             'question_id' => 'required|exists:questions,id',
-            'value' => 'required|string',
-            'order' => 'required|integer',
+            'value' => 'nullable|string',
         ]);
     }
 
@@ -129,7 +150,6 @@ class AnswersController extends Controller
     {
         return tap($answer, function (Answer $answer) use ($request) {
             $answer->value = $request->input('value');
-            $answer->order = $request->input('order');
             $answer->question_id = $request->input('question_id');
         });
     }

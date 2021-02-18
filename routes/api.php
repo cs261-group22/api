@@ -51,6 +51,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/events/{id}', [EventsController::class, 'show'])->name('events.show');
     Route::put('/events/{id}', [EventsController::class, 'update'])->name('events.update');
     Route::delete('/events/{id}', [EventsController::class, 'destroy'])->name('events.destroy');
+    Route::post('/events/{id}/publish', [EventsController::class, 'publish'])->name('events.publish');
     Route::get('/events/{id}/hosts', [EventHostsController::class, 'index'])->name('events.hosts.index');
     Route::patch('/events/{id}/hosts', [EventHostsController::class, 'update'])->name('events.hosts.update');
     Route::get('/events/{id}/sessions', [EventSessionsController::class, 'index'])->name('events.sessions.index');
@@ -62,13 +63,15 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/questions/{id}', [QuestionsController::class, 'show'])->name('questions.show');
     Route::put('/questions/{id}', [QuestionsController::class, 'update'])->name('questions.update');
     Route::delete('/questions/{id}', [QuestionsController::class, 'destroy'])->name('questions.destroy');
-    Route::patch('/questions/{id}/answers', [QuestionAnswersController::class, 'update'])->name('questions.answers.update');
+    Route::patch('/questions/{id}/move', [QuestionsController::class, 'move'])->name('questions.move');
+    Route::get('/questions/{id}/answers', [QuestionAnswersController::class, 'index'])->name('questions.answers.update');
 
     Route::post('/answers', [AnswersController::class, 'store'])->name('answers.store');
 
     Route::get('/answers/{id}', [AnswersController::class, 'show'])->name('answers.show');
     Route::put('/answers/{id}', [AnswersController::class, 'update'])->name('answers.update');
     Route::delete('/answers/{id}', [AnswersController::class, 'destroy'])->name('answers.destroy');
+    Route::patch('/answers/{id}/move', [AnswersController::class, 'move'])->name('answers.move');
 
     Route::get('/sessions/{id}', [SessionsController::class, 'show'])->name('sessions.show');
     Route::get('/sessions/{id}/responses', [SessionResponsesController::class, 'index'])->name('sessions.responses.index');

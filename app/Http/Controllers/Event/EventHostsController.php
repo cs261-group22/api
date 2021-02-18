@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Event;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
 use App\Models\Event;
+use App\Models\User;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Http\Request;
@@ -40,7 +41,7 @@ class EventHostsController extends Controller
      *
      * @param Request $request
      * @param int $id
-     * @return Application|ResponseFactory|Response
+     * @return Application|ResponseFactory|AnonymousResourceCollection|Response
      * @throws ValidationException
      */
     public function update(Request $request, int $id)
@@ -55,14 +56,20 @@ class EventHostsController extends Controller
 
         $this->validate($request, [
             'hosts' => 'present|array',
-            'hosts.*' => 'required|integer|exists:users,id',
+            'hosts.*' => 'required|email',
         ]);
+
+        $users = User::whereIn('email', $request->input('hosts'))->get();
+
+        if ($users->count() !== count($request->input('hosts'))) {
+            return response('One or more of the provided users do not exist in the system', 403);
+        }
 
         // Overwrite the hosts for the event from the provided array
         $event->hosts()->sync(
-            $request->input('hosts')
+            $users->pluck('id')
         );
 
-        return response()->noContent();
+        return UserResource::collection($users);
     }
 }
