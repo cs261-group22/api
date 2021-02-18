@@ -79,6 +79,28 @@ class QuestionsController extends Controller
     }
 
     /**
+     * Move the specified question.
+     *
+     * @param Request $request
+     * @param int $id
+     * @return Response
+     */
+    public function move(Request $request, $id)
+    {
+        $question = Question::findOrFail($id);
+
+        $request->validate([
+            'direction' => 'required|in:up,down',
+        ]);
+
+        $request->input('direction') === 'down'
+            ? $question->moveOrderDown()
+            : $question->moveOrderUp();
+
+        return response()->noContent();
+    }
+
+    /**
      * Deletes the specified question.
      *
      * @param int $id
@@ -108,11 +130,10 @@ class QuestionsController extends Controller
     {
         $this->validate($request, [
             'event_id' => 'required|exists:events,id',
-            'type' => 'required|in:free_text,multiple_choice',
-            'prompt' => 'required|string',
+            'type' => 'nullable|in:free_text,multiple_choice',
+            'prompt' => 'nullable|string',
             'min_responses' => 'nullable|integer',
             'max_responses' => 'nullable|integer|gte:min_responses',
-            'order' => 'required|integer',
         ]);
     }
 
@@ -127,7 +148,6 @@ class QuestionsController extends Controller
     {
         return tap($question, function (Question $question) use ($request) {
             $question->type = $request->input('type');
-            $question->order = $request->input('order');
             $question->prompt = $request->input('prompt');
             $question->event_id = $request->input('event_id');
             $question->min_responses = $request->input('min_responses');

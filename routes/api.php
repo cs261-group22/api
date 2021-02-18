@@ -62,7 +62,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/questions/{id}', [QuestionsController::class, 'show'])->name('questions.show');
     Route::put('/questions/{id}', [QuestionsController::class, 'update'])->name('questions.update');
     Route::delete('/questions/{id}', [QuestionsController::class, 'destroy'])->name('questions.destroy');
-    Route::patch('/questions/{id}/answers', [QuestionAnswersController::class, 'update'])->name('questions.answers.update');
+    Route::patch('/questions/{id}/move', [QuestionsController::class, 'move'])->name('questions.move');
+    Route::get('/questions/{id}/answers', [QuestionAnswersController::class, 'index'])->name('questions.answers.update');
 
     Route::post('/answers', [AnswersController::class, 'store'])->name('answers.store');
 
