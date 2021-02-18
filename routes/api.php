@@ -70,6 +70,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/answers/{id}', [AnswersController::class, 'show'])->name('answers.show');
     Route::put('/answers/{id}', [AnswersController::class, 'update'])->name('answers.update');
     Route::delete('/answers/{id}', [AnswersController::class, 'destroy'])->name('answers.destroy');
+    Route::patch('/answers/{id}/move', [AnswersController::class, 'move'])->name('answers.move');
 
     Route::get('/sessions/{id}', [SessionsController::class, 'show'])->name('sessions.show');
     Route::get('/sessions/{id}/responses', [SessionResponsesController::class, 'index'])->name('sessions.responses.index');
