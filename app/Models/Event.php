@@ -96,6 +96,61 @@ class Event extends Model
     }
 
     /**
+     * Determines if this event can be published.
+     *
+     * @return bool
+     */
+    public function getIsPublishableAttribute()
+    {
+        // The event must not already be published...
+        if (! $this->is_draft) {
+            return false;
+        }
+
+        // The event must have a name...
+        if (! $this->name) {
+            return false;
+        }
+
+        // If the event has a start and end date, it must start before it ends...
+        if ($this->starts_at && $this->ends_at && ($this->starts_at > $this->ends_at)) {
+            return false;
+        }
+
+        // The event must have at least one question...
+        if ($this->questions()->count() === 0) {
+            return false;
+        }
+
+        // All questions must have a prompt...
+        if ($this->questions()->where('prompt', '')->exists()) {
+            return false;
+        }
+
+        $hasQuestionWithoutTwoAnswers = $this->questions()
+            ->where('type', Question::TYPE_MULTIPLE_CHOICE)
+            ->has('answers', '<', 2)
+            ->exists();
+
+        // All multiple choice questions must have at least two answers...
+        if ($hasQuestionWithoutTwoAnswers) {
+            return false;
+        }
+
+        $hasQuestionWithEmptyAnswer = $this->questions()
+            ->where('type', Question::TYPE_MULTIPLE_CHOICE)
+            ->whereHas('answers', fn (Builder $query) => $query->where('value', ''))
+            ->exists();
+
+        // All answers must have values...
+        if ($hasQuestionWithEmptyAnswer) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
      * Get the hosts many-to-many relationship.
      *
      * @return BelongsToMany
@@ -132,7 +187,7 @@ class Event extends Model
      */
     public function questions()
     {
-        return $this->hasMany(Question::class, 'event_id');
+        return $this->hasMany(Question::class, 'event_id')->ordered();
     }
 
     /**
