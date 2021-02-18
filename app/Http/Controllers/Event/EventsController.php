@@ -38,7 +38,7 @@ class EventsController extends Controller
      */
     public function show(int $id): EventResource
     {
-        $event = Event::with('questions', 'questions.answers')
+        $event = Event::with('hosts', 'questions', 'questions.answers')
             ->where('id', $id)
             ->firstOrFail();
 
@@ -109,6 +109,32 @@ class EventsController extends Controller
     }
 
     /**
+     * Publishes the specified draft event.
+     *
+     * @param int $id
+     * @return Application|ResponseFactory|Response
+     */
+    public function publish(int $id)
+    {
+        $event = Event::findOrFail($id);
+
+        // The user can only publish events that they manage
+        if (! $event->hostedByUser(Auth::user())) {
+            return response('You must host this event to publish it', 403);
+        }
+
+        // The event must be publishable
+        if (! $event->is_publishable) {
+            return response('This event cannot be published in it\'s current state', 422);
+        }
+
+        $event->is_draft = false;
+        $event->save();
+
+        return response()->noContent();
+    }
+
+    /**
      * Deletes an event managed by the requesting user.
      *
      * @param int $id
@@ -143,6 +169,7 @@ class EventsController extends Controller
             'is_draft' => 'present|boolean',
             'description' => 'nullable|string',
             'allow_guests' => 'present|boolean',
+            'max_sessions' => 'nullable|integer',
         ]);
     }
 
@@ -161,6 +188,7 @@ class EventsController extends Controller
             $event->is_draft = $request->input('is_draft');
             $event->starts_at = $request->input('starts_at');
             $event->description = $request->input('description');
+            $event->max_sessions = $request->input('max_sessions');
             $event->allow_guests = $request->input('allow_guests');
         });
     }
