@@ -17,7 +17,8 @@
         "guzzlehttp/guzzle": "^7.0.1",
         "laravel/framework": "^8.0",
         "laravel/sanctum": "^2.6",
-        "laravel/tinker": "^2.0"
+        "laravel/tinker": "^2.0",
+        "spatie/eloquent-sortable": "^3.11"
     },
     "require-dev": {
         "cartalyst/php-cs-fixer-config": "^1.0",
