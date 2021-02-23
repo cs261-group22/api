@@ -3,7 +3,7 @@ WORKDIR /app
 COPY . /app
 RUN composer install
 
-FROM php:7.4-apache
+FROM php:8.0-apache
 
 RUN apt-get update \
     && apt-get install -y libpq-dev \
