@@ -8,8 +8,7 @@ return [
         'email_password_reset'    => env('CS261_PWA_PASSWORD_RESET_PATH', '/password-reset'),
     ],
     'analytics' => [
+        'mock' => (bool) env('CS261_ANALYTICS_MOCK', true),
         'endpoint' => env('CS261_ANALYTICS_ENDPOINT', ''),
-        'api_key' => env('CS261_ANALYTICS_API_KEY', ''),
-        'api_secret' => env('CS261_ANALYTICS_API_SECRET', ''),
     ],
 ];
