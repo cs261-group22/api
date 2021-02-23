@@ -3,8 +3,11 @@
 namespace App\Http\Controllers\Session;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\ResponseResource;
+use App\Models\Question;
+use App\Models\Response;
+use App\Models\Session;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 
 class SessionResponsesController extends Controller
 {
@@ -14,11 +17,12 @@ class SessionResponsesController extends Controller
      * @param int $id
      * @return Response
      */
-    public function show(int $id): Response
+    public function index(int $id)
     {
+        $responses = Response::with('answer', 'session', 'question')->where('session_id', $id)->get();
         // Retrieves a list of responses recorded for the session with the provided ID.
         // Accepts requests from the user that own the session, users that host the event associated with the session, or administrators.
-        return response()->noContent();
+        return ResponseResource::collection($responses);
     }
 
     /**
@@ -27,10 +31,91 @@ class SessionResponsesController extends Controller
      * @param Request $request
      * @return Response
      */
-    public function store(Request $request): Response
+    public function update(Request $request, int $id)
     {
+        $session = Session::findOrFail($id);
+
         // Given a question and answer, creates and associates a new response with the provided session.
         // Accepts requests from the user that owns the session.
-        return response()->noContent();
+        $this->validateResponses($request);
+
+        $responses = $request['responses'];
+
+        $questions = Question::with('answers')
+            ->whereIn('id', array_map(fn ($response) => $response['question_id'], $responses))
+            ->get()
+            ->keyBy('id');
+
+        foreach ($responses as $response) {
+            $question = $questions->get($response['question_id']);
+
+            if (isset($response['answer_id']) && $question->type === Question::TYPE_FREE_TEXT) {
+                return response()->json([
+                    'error' => 'A multiple choice answer cannot be provided for a free text question',
+                ], 422);
+            }
+
+            if (isset($response['value']) && $question->type === Question::TYPE_MULTIPLE_CHOICE) {
+                return response()->json([
+                    'error' => 'A text response cannot be provided for a multiple choice question',
+                ], 422);
+            }
+
+            if (isset($response['answer_id']) && ! $question->answers->firstWhere('id', $response['answer_id'])) {
+                return response()->json([
+                    'error' => 'The provided answer does not belong to the provided question',
+                ],422);
+            }
+        }
+
+        // Ensure the number of responses for each multiple choice question is within the accepted range
+        if (! collect($responses)->groupBy('question_id')->contains(function ($responses, $questionId) use ($questions) {
+            $question = $questions->get($questionId);
+
+            // Skip validation if it isn't multiple choice
+            if ($question->type === Question::TYPE_FREE_TEXT) {
+                return;
+            }
+
+            $minResponses = $question->min_responses ?? 0;
+            $maxResponses = $question->max_responses ?? PHP_INT_MAX;
+
+            return (count($responses) >= $minResponses) && (count($responses) <= $maxResponses);
+        })) {
+            return response()->json([
+                'error' => 'A number of responses given is outside the bounds of the question',
+            ], 400);
+        }
+
+        // Remove all existing responses in the session
+        $session->responses()->delete();
+
+        $data = array_map(fn ($response) => array_merge([
+            'session_id' => $session->id,
+            'created_at' => now(),
+            'updated_at' => now(),
+            'value' => null,
+            'answer_id' => null,
+        ], $response), $responses);
+
+        Response::insert($data);
+
+        return $this->index($id);
+    }
+
+    /**
+     * Validates the incoming request.
+     *
+     * @param Request $request
+     * @throws ValidationException
+     */
+    protected function validateResponses(Request $request)
+    {
+        $this->validate($request, [
+            'responses' => 'present|array',
+            'responses.*.value' => 'required_without:responses.*.answer_id|string',
+            'responses.*.question_id' => 'required|exists:questions,id',
+            'responses.*.answer_id' => 'required_without:responses.*.value|exists:answers,id',
+        ]);
     }
 }

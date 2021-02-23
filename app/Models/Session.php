@@ -51,4 +51,16 @@ class Session extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
+
+    /**
+     * Get the responses one-to-many relationship.
+     *
+     * @return HasMany
+     */
+    public function responses()
+    {
+        return $this->hasMany(
+            Response::class, 'session_id'
+        );
+    }
 }
