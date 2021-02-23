@@ -8,6 +8,11 @@
     ],
     "license": "MIT",
     "require": {
+<<<<<<< HEAD
+=======
+        "php": "^8.0",
+        "ext-json": "^8.0",
+>>>>>>> Half Implemented update
         "aws/aws-sdk-php-laravel": "^3.6",
         "doctrine/dbal": "^2.11",
         "fideloper/proxy": "^4.2",
