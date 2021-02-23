@@ -57,27 +57,22 @@ class SessionResponsesController extends Controller
 
             if (isset($response['answer_id']) && $question->type === Question::TYPE_FREE_TEXT) {
                 return response()->json([
-                    'error' => 'A multiple choice answer cannot be provided for a free text question'], 422);
+                    'error' => 'A multiple choice answer cannot be provided for a free text question'
+                ], 422);
             }
 
             if (isset($response['value']) && $question->type === Question::TYPE_MULTIPLE_CHOICE) {
                 return response()->json([
-                    'error' => 'A text response cannot be provided for a multiple choice question'], 422);
+                    'error' => 'A text response cannot be provided for a multiple choice question'
+                ], 422);
             }
 
             if (isset($response['answer_id']) && !$question->answers->firstWhere('id', $response['answer_id'])) {
                 return response()->json([
-                    'error' => 'The provided answer does not belong to the provided question']);
+                    'error' => 'The provided answer does not belong to the provided question'
+                ]);
             }
         }
-
-        // $counts->each(function ($item, $key)  use ($errors) {
-        //     $question = Question::findOrFail($key);
-        //     if ($question->min_responses > $item)
-        //         $errors = $errors->concat(['min responses for question id ' . $key . ' is ' . $question->min_responses]);
-        //     if ($question->max_responses < $item)
-        //         $errors = $errors->concat(['max responses for question id ' . $key . ' is ' . $question->max_responses]);
-        // });
 
         // Ensure the number of responses for each multiple choice question is within the accepted range
         if (!collect($responses)->groupBy('question_id')->contains(function ($responses, $questionId) use ($questions) {
@@ -100,13 +95,14 @@ class SessionResponsesController extends Controller
         // Remove all existing responses in the session
         $session->responses()->delete();
 
-        $data = array_map(fn ($response) => array_merge($response, [
+        $data = array_map(fn ($response) => array_merge([
             'session_id' => $session->id,
             'created_at' => now(),
             'updated_at' => now(),
-        ]),$responses);
-        // Create new responses from the data provided in the body
-    //    return $data;
+            'value' => null,
+            'answer_id' => null
+        ], $response), $responses);
+
         Response::insert($data);
 
         return $this->index($id);
