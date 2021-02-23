@@ -64,7 +64,7 @@ class SessionResponsesController extends Controller
             if (isset($response['answer_id']) && ! $question->answers->firstWhere('id', $response['answer_id'])) {
                 return response()->json([
                     'error' => 'The provided answer does not belong to the provided question',
-                ],422);
+                ], 422);
             }
         }
 
