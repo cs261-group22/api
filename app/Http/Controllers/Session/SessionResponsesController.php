@@ -4,8 +4,6 @@ namespace App\Http\Controllers\Session;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ResponseResource;
-// use Illuminate\Http\Response;
-// use Illuminate\Http\Response;
 use App\Models\Question;
 use App\Models\Response;
 use App\Models\Session;
@@ -40,7 +38,6 @@ class SessionResponsesController extends Controller
         // Given a question and answer, creates and associates a new response with the provided session.
         // Accepts requests from the user that owns the session.
         $this->validateResponses($request);
-        $collections = collect([]);
 
         $responses = $request['responses'];
 
@@ -51,7 +48,6 @@ class SessionResponsesController extends Controller
 
         foreach ($responses as $response) {
             $question = $questions->get($response['question_id']);
-            $collections = $collections->concat([$response['question_id']]);
 
             if (isset($response['answer_id']) && $question->type === Question::TYPE_FREE_TEXT) {
                 return response()->json([
@@ -68,7 +64,7 @@ class SessionResponsesController extends Controller
             if (isset($response['answer_id']) && ! $question->answers->firstWhere('id', $response['answer_id'])) {
                 return response()->json([
                     'error' => 'The provided answer does not belong to the provided question',
-                ]);
+                ],422);
             }
         }
 
@@ -121,25 +117,5 @@ class SessionResponsesController extends Controller
             'responses.*.question_id' => 'required|exists:questions,id',
             'responses.*.answer_id' => 'required_without:responses.*.value|exists:answers,id',
         ]);
-    }
-
-    /**
-     * Populates an response with data from the provided request.
-     *
-     * @param Response $response
-     * @param Request $request
-     * @return Response
-     */
-    protected function populateResponse(Response $response, array $request, int $id): Response
-    {
-        return tap($response, function (Response $response) use ($request, $id) {
-            $response->session_id = $id;
-            $response->question_id = $request['question_id'];
-            if ($request['type'] === 'free_text') {
-                $response->value = $request['value'];
-            } else {
-                $response->answer_id = $request['value'];
-            }
-        });
     }
 }
