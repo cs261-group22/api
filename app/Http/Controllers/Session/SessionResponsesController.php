@@ -3,14 +3,13 @@
 namespace App\Http\Controllers\Session;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-// use Illuminate\Http\Response;
-// use Illuminate\Http\Response;
 use App\Http\Resources\ResponseResource;
-use App\Models\Session;
+// use Illuminate\Http\Response;
+// use Illuminate\Http\Response;
 use App\Models\Question;
 use App\Models\Response;
-use PhpParser\Node\Expr\Cast\Array_;
+use App\Models\Session;
+use Illuminate\Http\Request;
 
 class SessionResponsesController extends Controller
 {
@@ -50,47 +49,47 @@ class SessionResponsesController extends Controller
             ->get()
             ->keyBy('id');
 
-
         foreach ($responses as $response) {
             $question = $questions->get($response['question_id']);
-            $collections = $collections->concat([$response["question_id"]]);
+            $collections = $collections->concat([$response['question_id']]);
 
             if (isset($response['answer_id']) && $question->type === Question::TYPE_FREE_TEXT) {
                 return response()->json([
-                    'error' => 'A multiple choice answer cannot be provided for a free text question'
+                    'error' => 'A multiple choice answer cannot be provided for a free text question',
                 ], 422);
             }
 
             if (isset($response['value']) && $question->type === Question::TYPE_MULTIPLE_CHOICE) {
                 return response()->json([
-                    'error' => 'A text response cannot be provided for a multiple choice question'
+                    'error' => 'A text response cannot be provided for a multiple choice question',
                 ], 422);
             }
 
-            if (isset($response['answer_id']) && !$question->answers->firstWhere('id', $response['answer_id'])) {
+            if (isset($response['answer_id']) && ! $question->answers->firstWhere('id', $response['answer_id'])) {
                 return response()->json([
-                    'error' => 'The provided answer does not belong to the provided question'
+                    'error' => 'The provided answer does not belong to the provided question',
                 ]);
             }
         }
 
         // Ensure the number of responses for each multiple choice question is within the accepted range
-        if (!collect($responses)->groupBy('question_id')->contains(function ($responses, $questionId) use ($questions) {
+        if (! collect($responses)->groupBy('question_id')->contains(function ($responses, $questionId) use ($questions) {
             $question = $questions->get($questionId);
 
             // Skip validation if it isn't multiple choice
             if ($question->type === Question::TYPE_FREE_TEXT) {
-                return null;
+                return;
             }
 
             $minResponses = $question->min_responses ?? 0;
             $maxResponses = $question->max_responses ?? PHP_INT_MAX;
-            return (count($responses) >= $minResponses) && (count($responses) <= $maxResponses);
-        }))
-            return response()->json([
-                'error' => 'A number of responses given is outside the bounds of the question'
-            ], 400);
 
+            return (count($responses) >= $minResponses) && (count($responses) <= $maxResponses);
+        })) {
+            return response()->json([
+                'error' => 'A number of responses given is outside the bounds of the question',
+            ], 400);
+        }
 
         // Remove all existing responses in the session
         $session->responses()->delete();
@@ -100,14 +99,13 @@ class SessionResponsesController extends Controller
             'created_at' => now(),
             'updated_at' => now(),
             'value' => null,
-            'answer_id' => null
+            'answer_id' => null,
         ], $response), $responses);
 
         Response::insert($data);
 
         return $this->index($id);
     }
-
 
     /**
      * Validates the incoming request.
@@ -125,7 +123,6 @@ class SessionResponsesController extends Controller
         ]);
     }
 
-
     /**
      * Populates an response with data from the provided request.
      *
@@ -135,14 +132,14 @@ class SessionResponsesController extends Controller
      */
     protected function populateResponse(Response $response, array $request, int $id): Response
     {
-
         return tap($response, function (Response $response) use ($request, $id) {
             $response->session_id = $id;
-            $response->question_id = $request["question_id"];
-            if ($request["type"] === "free_text")
-                $response->value = $request["value"];
-            else
-                $response->answer_id = $request["value"];
+            $response->question_id = $request['question_id'];
+            if ($request['type'] === 'free_text') {
+                $response->value = $request['value'];
+            } else {
+                $response->answer_id = $request['value'];
+            }
         });
     }
 }
