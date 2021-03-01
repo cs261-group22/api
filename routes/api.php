@@ -9,6 +9,7 @@ use App\Http\Controllers\Question\QuestionAnswersController;
 use App\Http\Controllers\Question\QuestionsController;
 use App\Http\Controllers\Session\SessionResponsesController;
 use App\Http\Controllers\Session\SessionsController;
+use App\Http\Controllers\Session\SessionSubmissionController;
 use App\Http\Controllers\Team\TeamsController;
 use App\Http\Controllers\Team\TeamUsersController;
 use App\Http\Controllers\User\AuthController;
@@ -76,6 +77,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/sessions/{id}', [SessionsController::class, 'show'])->name('sessions.show');
     Route::get('/sessions/{id}/responses', [SessionResponsesController::class, 'index'])->name('sessions.responses.index');
     Route::patch('/sessions/{id}/responses', [SessionResponsesController::class, 'update'])->name('sessions.responses.update');
+    Route::post('/sessions/{id}/submit', [SessionSubmissionController::class, 'store'])->name('sessions.submit');
 
     Route::post('/logout', [AuthController::class, 'logout'])->name('auth.logout');
 });
