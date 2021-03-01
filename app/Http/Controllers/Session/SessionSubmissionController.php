@@ -25,7 +25,7 @@ class SessionSubmissionController extends Controller
         $session = Session::findOrFail($id);
 
         $this->validate($request, [
-            'mood' => 'required|integer|min:1|max:100'
+            'mood' => 'required|integer|min:1|max:100',
         ]);
 
         $groupedResponses = $session->responses()
