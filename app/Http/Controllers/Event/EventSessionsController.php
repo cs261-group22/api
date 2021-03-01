@@ -40,11 +40,21 @@ class EventSessionsController extends Controller
      *
      * @param Request $request
      * @param int $id
-     * @return Response
+     * @return SessionResource
      */
     public function store(Request $request, int $id)
     {
         Event::findOrFail($id);
+
+        $existingSession = Auth::user()
+            ->sessions()
+            ->where(['event_id' => $id, 'is_submitted' => false])
+            ->first();
+
+        // If the user has an unsubmitted session for the event, do not create a new one
+        if ($existingSession) {
+            return new SessionResource($existingSession);
+        }
 
         $session = new Session();
 
