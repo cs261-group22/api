@@ -17,6 +17,7 @@ class SessionResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'mood' => $this->mood,
             'started_at' => $this->started_at,
             'is_submitted' => $this->is_submitted,
 

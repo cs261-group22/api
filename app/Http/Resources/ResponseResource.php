@@ -18,6 +18,9 @@ class ResponseResource extends JsonResource
         return [
             'value' => $this->value,
             'sentiment' => $this->sentiment,
+            'answer_id' => $this->answer_id,
+            'session_id' => $this->session_id,
+            'question_id' => $this->question_id,
 
             'answer' => new AnswerResource(
                 $this->whenLoaded('answer')
