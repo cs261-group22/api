@@ -12,8 +12,9 @@ class LoginServiceTest extends TestCase
 {
 
     use RefreshDatabase;
+
     /**
-     * A basic feature test example.
+     * A test for logging in as admin
      *
      * @return void
      */
@@ -34,4 +35,21 @@ class LoginServiceTest extends TestCase
         $validResponse->assertStatus(200);
     }
 
+    /**
+     * A test for logging in as admin with wrong password
+     *
+     * @return void
+     */
+    public function testFailedPasswordAdminLogin()
+    {
+        $email = 'admin@example.com';
+        $password = 'password';
+
+        $user = User::factory()->admin()->create([
+            'email' => $email,
+            'password' => Hash::make($password)
+        ]);
+        $response = $this->postJson('/api/v1/login/employee', ['email' => $email, 'password' => $password . '1']);
+        $response->assertStatus(401);
+    }
 }

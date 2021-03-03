@@ -26,7 +26,13 @@ class AuthController extends Controller
         $this->validateLogin($request);
 
         // Retrieve the user associated with the provided email from the database
-        $user = User::where('email', $request->input('email'))->firstOrFail();
+        $user = User::where('email', $request->input('email'))->first();
+
+
+        // The users email address must be verified to login
+        if ($user == null) {
+            return response('Invalid account credentials provided', 401);
+        }
 
         // The users email address must be verified to login
         if (! $user->email_verified) {
