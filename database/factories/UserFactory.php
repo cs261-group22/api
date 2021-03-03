@@ -40,6 +40,17 @@ class UserFactory extends Factory
         return $this->state(function (array $attributes) {
             return [
                 'is_admin' => true,
+                'is_guest' => false
+            ];
+        });
+    }
+
+    public function non_admin()
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'is_admin' => false,
+                'is_guest' => false
             ];
         });
     }
