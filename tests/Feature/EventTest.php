@@ -7,26 +7,17 @@ use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 use App\Models\Event;
 use App\Models\User;
+use \Illuminate\Testing\TestResponse;
 
 class EventTest extends TestCase
 {
-    /**
-     * A basic feature test example.
-     *
-     * @return void
-     */
-    public function testAccessEventByCode()
+    use WithFaker;
+
+    private function unauthenticated(TestResponse $response)
     {
-        $this->assertTrue(true);
-        // $user = User::factory()->admin()->create();
-        // $this->actingAs($user, 'sanctum');
-
-        // $response = $this->post('/api/v1/login/guest');
-        // $response->assertStatus(200)->assertJsonStructure(['token']);
-        // $token = $response['token'];
-
-        // $validResponse = $this->withHeader('Authorization', 'Bearer ' . $token)->get('/api/v1/users');
-        // $validResponse->assertStatus(403);
+        $response->assertStatus(401)->assertExactJson([
+            'message' => 'Unauthenticated',
+        ]);
     }
 
     /**
@@ -38,35 +29,6 @@ class EventTest extends TestCase
     {
         $user = User::factory()->admin()->create();
         $this->actingAs($user, 'sanctum');
-        $this->GetEventsTest();
-    }
-
-    /**
-     * A test for non admins to access a list of all events
-     *
-     * @return void
-     */
-    public function testNonAdminGetEvents()
-    {
-        $user = User::factory()->non_admin()->create();
-        $this->actingAs($user, 'sanctum');
-        $this->GetEventsTest();
-    }
-
-    /**
-     * A test for guest to access a list of all events
-     *
-     * @return void
-     */
-    public function testGuestGetEvents()
-    {
-        $user = User::factory()->guest()->create();
-        $this->actingAs($user, 'sanctum');
-        $this->GetEventsTest();
-    }
-
-    private function GetEventsTest()
-    {
         Event::factory()->create();
         $response = $this->get('/api/v1/events');
         $response->assertStatus(200)->assertJsonStructure([
@@ -87,6 +49,35 @@ class EventTest extends TestCase
             ]
         ]);
     }
+
+    /**
+     * A test for non admins to access a list of all events
+     *
+     * @return void
+     */
+    public function testNonAdminGetEvents()
+    {
+        $user = User::factory()->non_admin()->create();
+        $this->actingAs($user, 'sanctum');
+        Event::factory()->create();
+        $response = $this->get('/api/v1/events');
+        $this->unauthenticated($response);
+    }
+
+    /**
+     * A test for guest to access a list of all events
+     *
+     * @return void
+     */
+    public function testGuestGetEvents()
+    {
+        $user = User::factory()->guest()->create();
+        $this->actingAs($user, 'sanctum');
+        Event::factory()->create();
+        $response = $this->get('/api/v1/events');
+        $this->unauthenticated($response);
+    }
+
 
     /**
      * A test for admins to access a list of all events
