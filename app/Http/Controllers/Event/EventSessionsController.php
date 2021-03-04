@@ -32,7 +32,13 @@ class EventSessionsController extends Controller
             return response('You are not authorized to view the sessions for the specified event', 403);
         }
 
-        return SessionResource::collection($event->sessions);
+        // Retrieve all submitted sessions for the event
+        $sessions = $event->sessions()
+            ->with('user', 'responses')
+            ->where('is_submitted', true)
+            ->get();
+
+        return SessionResource::collection($sessions);
     }
 
     /**

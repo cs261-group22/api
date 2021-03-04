@@ -28,6 +28,10 @@ class SessionResource extends JsonResource
             'user' => new UserResource(
                 $this->whenLoaded('user')
             ),
+
+            'responses' => ResponseResource::collection(
+                $this->whenLoaded('responses')
+            ),
         ];
     }
 }

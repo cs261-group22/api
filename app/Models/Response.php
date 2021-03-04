@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -31,6 +32,30 @@ class Response extends Model
     protected $casts = [
         'sentiment' => 'json',
     ];
+
+    /**
+     * Filter responses to only those that are for free text questions.
+     *
+     * @param Builder $query
+     */
+    public function scopeToFreeTextQuestions(Builder $query) {
+        $query->whereHas(
+            'question',
+            fn ($query) => $query->where('type', Question::TYPE_FREE_TEXT)
+        );
+    }
+
+    /**
+     * Filter responses to only those that are for multiple choice questions.
+     *
+     * @param Builder $query
+     */
+    public function scopeToMultipleChoiceQuestions(Builder $query) {
+        $query->whereHas(
+            'question',
+            fn ($query) => $query->where('type', Question::TYPE_MULTIPLE_CHOICE)
+        );
+    }
 
     /**
      * Get the session one-to-many relationship.

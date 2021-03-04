@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Session;
 
+use App\Events\SessionSubmitted;
 use App\Http\Controllers\Controller;
 use App\Models\Question;
 use App\Models\Session;
@@ -56,6 +57,9 @@ class SessionSubmissionController extends Controller
         $session->mood = (int) $request->input('mood');
 
         $session->save();
+
+        // Trigger analysis of responses in the session
+        event(new SessionSubmitted($session));
 
         return response()->noContent();
     }
