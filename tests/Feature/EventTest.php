@@ -12,7 +12,7 @@ use \Illuminate\Testing\TestResponse;
 
 class EventTest extends TestCase
 {
-    use WithFaker;
+    use WithFaker, RefreshDatabase;
 
     private function unauthenticated(TestResponse $response)
     {
