@@ -185,25 +185,28 @@ class EventTest extends TestCase
 
     private function AddEventTest()
     {
-        Event::factory()->create();
-        $response = $this->get('/api/v1/events');
-        $response->assertStatus(200)->assertJsonStructure([
-            'data' =>
-            [
-                '*' =>
-                [
-                    'id',
-                    'name',
-                    'code',
-                    'ends_at',
-                    'is_draft',
-                    'starts_at',
-                    'description',
-                    'allow_guests',
-                    'max_sessions'
-                ]
-            ]
-        ]);
+        $name = $this->faker->catchPhrase();
+        $guests = $this->faker->boolean();
+        $draft = $this->faker->boolean();
+        // Event::factory()->create();
+        $response = $this->postJson('/api/v1/events', ['name' => $name, 'allow_guests' => $guests, 'is_draft' => $draft]);
+        // $response->assertStatus(200)->assertJsonStructure([
+        //     'data' =>
+        //     [
+        //         '*' =>
+        //         [
+        //             'id',
+        //             'name',
+        //             'code',
+        //             'ends_at',
+        //             'is_draft',
+        //             'starts_at',
+        //             'description',
+        //             'allow_guests',
+        //             'max_sessions'
+        //         ]
+        //     ]
+        // ]);
     }
 
     /**
