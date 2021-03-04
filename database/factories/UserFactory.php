@@ -54,4 +54,14 @@ class UserFactory extends Factory
             ];
         });
     }
+
+    public function guest()
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'is_admin' => false,
+                'is_guest' => true
+            ];
+        });
+    }
 }

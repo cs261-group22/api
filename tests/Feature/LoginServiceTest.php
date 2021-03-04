@@ -137,7 +137,6 @@ class LoginServiceTest extends TestCase
      */
     public function testSuccessfulGuestLogin()
     {
-
         $response = $this->post('/api/v1/login/guest');
         $response->assertStatus(200)->assertJsonStructure(['token']);
         $token = $response['token'];
