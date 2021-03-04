@@ -7,6 +7,7 @@ use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 use App\Models\Event;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Collection;
 use \Illuminate\Testing\TestResponse;
 
 class EventTest extends TestCase
@@ -27,27 +28,35 @@ class EventTest extends TestCase
      */
     public function testAdminGetEvents()
     {
-        $user = User::factory()->admin()->create();
-        $this->actingAs($user, 'sanctum');
-        Event::factory()->create();
+        $userA = User::factory()->admin()->create();
+        $this->actingAs($userA, 'sanctum');
+        $userB = User::factory()->admin()->create();
+        $userC = User::factory()->non_admin()->create();
+        $userD = User::factory()->non_admin()->create();
+
+        $eventA = Event::factory()->create();
+        $eventB = Event::factory()->create();
+        $eventC = Event::factory()->create();
+        $eventD = Event::factory()->create();
+        $eventE = Event::factory()->create();
+
+        $userB->eventsHosted()->sync($eventA->id, $eventB->id);
+        $userC->eventsHosted()->sync($eventC->id, $eventD->id);
+        $userD->eventsHosted()->sync($eventE->id);
+
+        $expectedEvents = collect([$eventA, $eventB, $eventC, $eventD, $eventC]);
         $response = $this->get('/api/v1/events');
         $response->assertStatus(200)->assertJsonStructure([
             'data' =>
             [
-                '*' =>
-                [
-                    'id',
-                    'name',
-                    'code',
-                    'ends_at',
-                    'is_draft',
-                    'starts_at',
-                    'description',
-                    'allow_guests',
-                    'max_sessions'
-                ]
+                '*' => $this->getEventJsonStructure()
             ]
         ]);
+
+        $ids = collect($response['data'])->pluck('id');
+        $expectedEvents->each(function (Event $event) use ($ids) {
+            $this->assertContains($event->id, $ids);
+        });
     }
 
     /**
@@ -57,11 +66,35 @@ class EventTest extends TestCase
      */
     public function testNonAdminGetEvents()
     {
-        $user = User::factory()->non_admin()->create();
-        $this->actingAs($user, 'sanctum');
-        Event::factory()->create();
+        $userA = User::factory()->admin()->create();
+        $userB = User::factory()->admin()->create();
+        $userC = User::factory()->non_admin()->create();
+        $userD = User::factory()->non_admin()->create();
+        $this->actingAs($userC, 'sanctum');
+
+        $eventA = Event::factory()->create();
+        $eventB = Event::factory()->create();
+        $eventC = Event::factory()->create();
+        $eventD = Event::factory()->create();
+        $eventE = Event::factory()->create();
+
+        $userB->eventsHosted()->sync($eventA->id, $eventB->id);
+        $userC->eventsHosted()->sync($eventC->id, $eventD->id);
+        $userD->eventsHosted()->sync($eventE->id);
+
+        $expectedEvents = collect([$eventC, $eventD]);
         $response = $this->get('/api/v1/events');
-        $this->unauthenticated($response);
+        $response->assertStatus(200)->assertJsonStructure([
+            'data' =>
+            [
+                '*' => $this->getEventJsonStructure()
+            ]
+        ]);
+
+        $ids = collect($response['data'])->pluck('id');
+        $expectedEvents->each(function (Event $event) use ($ids) {
+            $this->assertContains($event->id, $ids);
+        });
     }
 
     /**
@@ -257,5 +290,20 @@ class EventTest extends TestCase
                 ]
             ]
         ]);
+    }
+
+    private function getEventJsonStructure()
+    {
+        return [
+            'id',
+            'name',
+            'code',
+            'ends_at',
+            'is_draft',
+            'starts_at',
+            'description',
+            'allow_guests',
+            'max_sessions'
+        ];
     }
 }
