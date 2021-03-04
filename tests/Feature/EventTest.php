@@ -40,9 +40,9 @@ class EventTest extends TestCase
         $eventD = Event::factory()->create();
         $eventE = Event::factory()->create();
 
-        $userB->eventsHosted()->sync($eventA->id, $eventB->id);
-        $userC->eventsHosted()->sync($eventC->id, $eventD->id);
-        $userD->eventsHosted()->sync($eventE->id);
+        $userB->eventsHosted()->sync([$eventA->id, $eventB->id]);
+        $userC->eventsHosted()->sync([$eventC->id, $eventD->id]);
+        $userD->eventsHosted()->sync([$eventE->id]);
 
         $expectedEvents = collect([$eventA, $eventB, $eventC, $eventD, $eventC]);
         $response = $this->get('/api/v1/events');
@@ -78,9 +78,9 @@ class EventTest extends TestCase
         $eventD = Event::factory()->create();
         $eventE = Event::factory()->create();
 
-        $userB->eventsHosted()->sync($eventA->id, $eventB->id);
-        $userC->eventsHosted()->sync($eventC->id, $eventD->id);
-        $userD->eventsHosted()->sync($eventE->id);
+        $userB->eventsHosted()->sync([$eventA->id, $eventB->id]);
+        $userC->eventsHosted()->sync([$eventC->id, $eventD->id]);
+        $userD->eventsHosted()->sync([$eventE->id]);
 
         $expectedEvents = collect([$eventC, $eventD]);
         $response = $this->get('/api/v1/events');
