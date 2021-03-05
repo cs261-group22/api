@@ -432,6 +432,94 @@ class EventTest extends TestCase
         $this->unauthenticated($response);
     }
 
+    public function testAdminDeleteEvent()
+    {
+        $userA = User::factory()->admin()->create();
+        $userB = User::factory()->admin()->create();
+        $userC = User::factory()->non_admin()->create();
+        $userD = User::factory()->non_admin()->create();
+        $userE = User::factory()->guest()->create();
+        $this->actingAs($userA, 'sanctum');
+
+        $eventA = Event::factory()->create();
+        $eventB = Event::factory()->create();
+        $eventC = Event::factory()->create();
+        $eventD = Event::factory()->create();
+        $eventE = Event::factory()->create();
+
+        $userB->eventsHosted()->sync([$eventA->id, $eventB->id]);
+        $userC->eventsHosted()->sync([$eventC->id, $eventD->id]);
+        $userD->eventsHosted()->sync([$eventE->id]);
+        $response = $this->delete('/api/v1/events/' . $eventE->id);
+        $response->assertStatus(204);
+    }
+
+    public function testNonAdminDeleteEvent()
+    {
+        $userA = User::factory()->admin()->create();
+        $userB = User::factory()->admin()->create();
+        $userC = User::factory()->non_admin()->create();
+        $userD = User::factory()->non_admin()->create();
+        $userE = User::factory()->guest()->create();
+        $this->actingAs($userD, 'sanctum');
+
+        $eventA = Event::factory()->create();
+        $eventB = Event::factory()->create();
+        $eventC = Event::factory()->create();
+        $eventD = Event::factory()->create();
+        $eventE = Event::factory()->create();
+
+        $userB->eventsHosted()->sync([$eventA->id, $eventB->id]);
+        $userC->eventsHosted()->sync([$eventC->id, $eventD->id]);
+        $userD->eventsHosted()->sync([$eventE->id]);
+        $response = $this->delete('/api/v1/events/' . $eventE->id);
+        $response->assertStatus(204);
+    }
+
+    public function testGuestDeleteEvent()
+    {
+        $userA = User::factory()->admin()->create();
+        $userB = User::factory()->admin()->create();
+        $userC = User::factory()->non_admin()->create();
+        $userD = User::factory()->non_admin()->create();
+        $userE = User::factory()->guest()->create();
+        $this->actingAs($userE, 'sanctum');
+
+        $eventA = Event::factory()->create();
+        $eventB = Event::factory()->create();
+        $eventC = Event::factory()->create();
+        $eventD = Event::factory()->create();
+        $eventE = Event::factory()->create();
+
+        $userB->eventsHosted()->sync([$eventA->id, $eventB->id]);
+        $userC->eventsHosted()->sync([$eventC->id, $eventD->id]);
+        $userD->eventsHosted()->sync([$eventE->id]);
+        $response = $this->delete('/api/v1/events/' . $eventE->id);
+        $this->unauthenticated($response);
+    }
+
+    public function testNonAdminDeleteEventNoAccess()
+    {
+        $userA = User::factory()->admin()->create();
+        $userB = User::factory()->admin()->create();
+        $userC = User::factory()->non_admin()->create();
+        $userD = User::factory()->non_admin()->create();
+        $userE = User::factory()->guest()->create();
+        $this->actingAs($userC, 'sanctum');
+
+        $eventA = Event::factory()->create();
+        $eventB = Event::factory()->create();
+        $eventC = Event::factory()->create();
+        $eventD = Event::factory()->create();
+        $eventE = Event::factory()->create();
+
+        $userB->eventsHosted()->sync([$eventA->id, $eventB->id]);
+        $userC->eventsHosted()->sync([$eventC->id, $eventD->id]);
+        $userD->eventsHosted()->sync([$eventE->id]);
+        $response = $this->delete('/api/v1/events/' . $eventE->id);
+        $this->unauthenticated($response);
+    }
+
     private function getEventJsonStructure()
     {
         return [
