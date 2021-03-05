@@ -6,6 +6,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 use App\Models\Event;
+use App\Models\Question;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
 use \Illuminate\Testing\TestResponse;
@@ -517,6 +518,83 @@ class EventTest extends TestCase
         $userC->eventsHosted()->sync([$eventC->id, $eventD->id]);
         $userD->eventsHosted()->sync([$eventE->id]);
         $response = $this->delete('/api/v1/events/' . $eventE->id);
+        $this->unauthenticated($response);
+    }
+
+
+    public function testAdminPublishEvent()
+    {
+        $userA = User::factory()->admin()->create();
+        $userB = User::factory()->admin()->create();
+        $userC = User::factory()->non_admin()->create();
+        $userD = User::factory()->non_admin()->create();
+        $userE = User::factory()->guest()->create();
+        $this->actingAs($userA, 'sanctum');
+
+        $eventE = Event::factory()->draft()->create();
+        $question = Question::factory()->create([
+            'event_id' => $eventE->id
+        ]);
+
+        $userD->eventsHosted()->sync([$eventE->id]);
+        $response = $this->post('/api/v1/events/' . $eventE->id . '/publish');
+        $response->assertStatus(204);
+    }
+
+    public function testNonAdminPublishEvent()
+    {
+        $userA = User::factory()->admin()->create();
+        $userB = User::factory()->admin()->create();
+        $userC = User::factory()->non_admin()->create();
+        $userD = User::factory()->non_admin()->create();
+        $userE = User::factory()->guest()->create();
+        $this->actingAs($userD, 'sanctum');
+
+        $eventE = Event::factory()->draft()->create();
+        $question = Question::factory()->create([
+            'event_id' => $eventE->id
+        ]);
+
+        $userD->eventsHosted()->sync([$eventE->id]);
+        $response = $this->post('/api/v1/events/' . $eventE->id . '/publish');
+        $response->assertStatus(204);
+    }
+
+    public function testGuestPublishEvent()
+    {
+        $userA = User::factory()->admin()->create();
+        $userB = User::factory()->admin()->create();
+        $userC = User::factory()->non_admin()->create();
+        $userD = User::factory()->non_admin()->create();
+        $userE = User::factory()->guest()->create();
+        $this->actingAs($userE, 'sanctum');
+
+        $eventE = Event::factory()->draft()->create();
+        $question = Question::factory()->create([
+            'event_id' => $eventE->id
+        ]);
+
+        $userD->eventsHosted()->sync([$eventE->id]);
+        $response = $this->post('/api/v1/events/' . $eventE->id . '/publish');
+        $this->unauthenticated($response);
+    }
+
+    public function testNonAdminPublishEventNoAccess()
+    {
+        $userA = User::factory()->admin()->create();
+        $userB = User::factory()->admin()->create();
+        $userC = User::factory()->non_admin()->create();
+        $userD = User::factory()->non_admin()->create();
+        $userE = User::factory()->guest()->create();
+        $this->actingAs($userC, 'sanctum');
+
+        $eventE = Event::factory()->draft()->create();
+        $question = Question::factory()->create([
+            'event_id' => $eventE->id
+        ]);
+
+        $userD->eventsHosted()->sync([$eventE->id]);
+        $response = $this->post('/api/v1/events/' . $eventE->id . '/publish');
         $this->unauthenticated($response);
     }
 

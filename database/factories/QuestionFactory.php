@@ -21,8 +21,14 @@ class QuestionFactory extends Factory
      */
     public function definition()
     {
+        $responses = $this->faker->numberBetween($min = 1, $max = 4);
         return [
-            //
+            'type' => Question::TYPE_FREE_TEXT,
+            'order' => 0,
+            'prompt' => $this->faker->paragraph(),
+            'event_id' => 0,
+            'min_responses' => $responses,
+            'max_responses' => $responses + $this->faker->numberBetween($min = 0, $max = 2),
         ];
     }
 }

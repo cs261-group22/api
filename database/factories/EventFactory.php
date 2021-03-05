@@ -25,12 +25,22 @@ class EventFactory extends Factory
         return [
             'name' => $this->faker->catchPhrase(),
             'code' => Event::generateUniqueEventCode(),
-            'ends_at' => now(),
-            'is_draft' => $this->faker->boolean(),
             'starts_at' => now(),
+            'ends_at' => now()->addDays(30),
+            'is_draft' => $this->faker->boolean(),
             'description' => $this->faker->paragraph(),
             'allow_guests' => $this->faker->boolean(),
             'max_sessions' => $this->faker->numberBetween($min = 1, $max = 20),
         ];
+    }
+
+
+    public function draft()
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'is_draft' => true
+            ];
+        });
     }
 }
