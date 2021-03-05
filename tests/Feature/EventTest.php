@@ -598,6 +598,91 @@ class EventTest extends TestCase
         $this->unauthenticated($response);
     }
 
+    public function testAdminEventHosts()
+    {
+        $userA = User::factory()->admin()->create();
+        $userB = User::factory()->admin()->create();
+        $userC = User::factory()->non_admin()->create();
+        $userD = User::factory()->non_admin()->create();
+        $userE = User::factory()->guest()->create();
+        $this->actingAs($userA, 'sanctum');
+
+        $eventA = Event::factory()->create();
+        $eventB = Event::factory()->create();
+        $eventC = Event::factory()->create();
+        $eventD = Event::factory()->create();
+        $eventE = Event::factory()->create();
+
+        $userB->eventsHosted()->sync([$eventA->id, $eventB->id]);
+        $userC->eventsHosted()->sync([$eventC->id, $eventD->id]);
+        $userD->eventsHosted()->sync([$eventE->id]);
+        $response = $this->get('/api/v1/events/' . $eventE->id . '/hosts');
+        $response->assertStatus(200)->assertJsonStructure(['data' => ['*' => $this->getUserJsonStructure()]]);
+    }
+
+    public function testNonAdminEventHosts()
+    {
+        $userA = User::factory()->admin()->create();
+        $userB = User::factory()->admin()->create();
+        $userC = User::factory()->non_admin()->create();
+        $userD = User::factory()->non_admin()->create();
+        $userE = User::factory()->guest()->create();
+        $this->actingAs($userD, 'sanctum');
+
+        $eventA = Event::factory()->create();
+        $eventB = Event::factory()->create();
+        $eventC = Event::factory()->create();
+        $eventD = Event::factory()->create();
+        $eventE = Event::factory()->create();
+
+        $userB->eventsHosted()->sync([$eventA->id, $eventB->id]);
+        $userC->eventsHosted()->sync([$eventC->id, $eventD->id]);
+        $userD->eventsHosted()->sync([$eventE->id]);
+        $response = $this->get('/api/v1/events/' . $eventE->id . '/hosts');
+        $response->assertStatus(200)->assertJsonStructure(['data' => ['*' => $this->getUserJsonStructure()]]);
+    }
+    public function testGuestEventHosts()
+    {
+        $userA = User::factory()->admin()->create();
+        $userB = User::factory()->admin()->create();
+        $userC = User::factory()->non_admin()->create();
+        $userD = User::factory()->non_admin()->create();
+        $userE = User::factory()->guest()->create();
+        $this->actingAs($userE, 'sanctum');
+
+        $eventA = Event::factory()->create();
+        $eventB = Event::factory()->create();
+        $eventC = Event::factory()->create();
+        $eventD = Event::factory()->create();
+        $eventE = Event::factory()->create();
+
+        $userB->eventsHosted()->sync([$eventA->id, $eventB->id]);
+        $userC->eventsHosted()->sync([$eventC->id, $eventD->id]);
+        $userD->eventsHosted()->sync([$eventE->id]);
+        $response = $this->get('/api/v1/events/' . $eventE->id . '/hosts');
+        $this->unauthenticated($response);
+    }
+    public function testNonAdminEventHostsNoAccess()
+    {
+        $userA = User::factory()->admin()->create();
+        $userB = User::factory()->admin()->create();
+        $userC = User::factory()->non_admin()->create();
+        $userD = User::factory()->non_admin()->create();
+        $userE = User::factory()->guest()->create();
+        $this->actingAs($userC, 'sanctum');
+
+        $eventA = Event::factory()->create();
+        $eventB = Event::factory()->create();
+        $eventC = Event::factory()->create();
+        $eventD = Event::factory()->create();
+        $eventE = Event::factory()->create();
+
+        $userB->eventsHosted()->sync([$eventA->id, $eventB->id]);
+        $userC->eventsHosted()->sync([$eventC->id, $eventD->id]);
+        $userD->eventsHosted()->sync([$eventE->id]);
+        $response = $this->get('/api/v1/events/' . $eventE->id . '/hosts');
+        $this->unauthenticated($response);
+    }
     private function getEventJsonStructure()
     {
         return [
@@ -610,6 +695,18 @@ class EventTest extends TestCase
             'description',
             'allow_guests',
             'max_sessions'
+        ];
+    }
+
+    private function getUserJsonStructure()
+    {
+        return [
+            'id',
+            'name',
+            'name',
+            'is_admin',
+            'is_guest',
+            'email_verified_at'
         ];
     }
 }
