@@ -180,7 +180,8 @@ class EventTest extends TestCase
     {
         $user = User::factory()->admin()->create();
         $this->actingAs($user, 'sanctum');
-        $this->AddEventTest();
+        $response = $this->AddEventTest();
+        $response->assertStatus(201)->assertJsonStructure(['data' => $this->getEventJsonStructure()]);
     }
 
     /**
@@ -192,7 +193,8 @@ class EventTest extends TestCase
     {
         $user = User::factory()->non_admin()->create();
         $this->actingAs($user, 'sanctum');
-        $this->AddEventTest();
+        $response = $this->AddEventTest();
+        $response->assertStatus(201)->assertJsonStructure(['data' => $this->getEventJsonStructure()]);
     }
 
     /**
@@ -204,94 +206,109 @@ class EventTest extends TestCase
     {
         $user = User::factory()->guest()->create();
         $this->actingAs($user, 'sanctum');
-        $this->AddEventTest();
+        $response = $this->AddEventTest();
+        $this->unauthenticated($response);
     }
 
-    private function AddEventTest()
+    private function AddEventTest(): TestResponse
     {
         $name = $this->faker->catchPhrase();
         $guests = $this->faker->boolean();
         $draft = $this->faker->boolean();
-        // Event::factory()->create();
         $response = $this->postJson('/api/v1/events', ['name' => $name, 'allow_guests' => $guests, 'is_draft' => $draft]);
-        // $response->assertStatus(200)->assertJsonStructure([
-        //     'data' =>
-        //     [
-        //         '*' =>
-        //         [
-        //             'id',
-        //             'name',
-        //             'code',
-        //             'ends_at',
-        //             'is_draft',
-        //             'starts_at',
-        //             'description',
-        //             'allow_guests',
-        //             'max_sessions'
-        //         ]
-        //     ]
-        // ]);
+        return $response;
     }
 
-    /**
-     * A test for admins to access a list of all events
-     *
-     * @return void
-     */
-    public function testAdminNEWEVENTTESTTYPE()
+
+    public function testAdminShowEvent()
     {
-        $user = User::factory()->admin()->create();
-        $this->actingAs($user, 'sanctum');
-        $this->NEWEVENTTESTTYPETest();
+        $userA = User::factory()->admin()->create();
+        $this->actingAs($userA, 'sanctum');
+        $userB = User::factory()->admin()->create();
+        $userC = User::factory()->non_admin()->create();
+        $userD = User::factory()->non_admin()->create();
+
+        $eventA = Event::factory()->create();
+        $eventB = Event::factory()->create();
+        $eventC = Event::factory()->create();
+        $eventD = Event::factory()->create();
+        $eventE = Event::factory()->create();
+
+        $userB->eventsHosted()->sync([$eventA->id, $eventB->id]);
+        $userC->eventsHosted()->sync([$eventC->id, $eventD->id]);
+        $userD->eventsHosted()->sync([$eventE->id]);
+
+        $response = $this->get('/api/v1/events/' . $eventA->id);
+        $response->assertStatus(200)->assertJsonStructure(['data' => $this->getEventJsonStructure()]);
     }
 
-    /**
-     * A test for non admins to access a list of all events
-     *
-     * @return void
-     */
-    public function testNonAdminNEWEVENTTESTTYPE()
+    public function testNonAdminShowEvent()
     {
-        $user = User::factory()->non_admin()->create();
-        $this->actingAs($user, 'sanctum');
-        $this->NEWEVENTTESTTYPETest();
+        $userA = User::factory()->admin()->create();
+        $userB = User::factory()->admin()->create();
+        $userC = User::factory()->non_admin()->create();
+        $userD = User::factory()->non_admin()->create();
+        $this->actingAs($userC, 'sanctum');
+
+        $eventA = Event::factory()->create();
+        $eventB = Event::factory()->create();
+        $eventC = Event::factory()->create();
+        $eventD = Event::factory()->create();
+        $eventE = Event::factory()->create();
+
+        $userB->eventsHosted()->sync([$eventA->id, $eventB->id]);
+        $userC->eventsHosted()->sync([$eventC->id, $eventD->id]);
+        $userD->eventsHosted()->sync([$eventE->id]);
+
+        $response = $this->get('/api/v1/events/' . $eventC->id);
+        $response->assertStatus(200)->assertJsonStructure(['data' => $this->getEventJsonStructure()]);
     }
 
-    /**
-     * A test for guest to access a list of all events
-     *
-     * @return void
-     */
-    public function testGuestNEWEVENTTESTTYPE()
+    public function testNonAdminShowEventNotOwned()
     {
-        $user = User::factory()->guest()->create();
-        $this->actingAs($user, 'sanctum');
-        $this->NEWEVENTTESTTYPETest();
+        $userA = User::factory()->admin()->create();
+        $userB = User::factory()->admin()->create();
+        $userC = User::factory()->non_admin()->create();
+        $userD = User::factory()->non_admin()->create();
+        $this->actingAs($userC, 'sanctum');
+
+        $eventA = Event::factory()->create();
+        $eventB = Event::factory()->create();
+        $eventC = Event::factory()->create();
+        $eventD = Event::factory()->create();
+        $eventE = Event::factory()->create();
+
+        $userB->eventsHosted()->sync([$eventA->id, $eventB->id]);
+        $userC->eventsHosted()->sync([$eventC->id, $eventD->id]);
+        $userD->eventsHosted()->sync([$eventE->id]);
+
+        $response = $this->get('/api/v1/events/' . $eventE->id);
+        $this->unauthenticated($response);
     }
 
-    private function NEWEVENTTESTTYPETest()
+
+    public function testGuestShowEvent()
     {
-        Event::factory()->create();
-        $response = $this->get('/api/v1/events');
-        $response->assertStatus(200)->assertJsonStructure([
-            'data' =>
-            [
-                '*' =>
-                [
-                    'id',
-                    'name',
-                    'code',
-                    'ends_at',
-                    'is_draft',
-                    'starts_at',
-                    'description',
-                    'allow_guests',
-                    'max_sessions'
-                ]
-            ]
-        ]);
-    }
+        $userA = User::factory()->admin()->create();
+        $userB = User::factory()->admin()->create();
+        $userC = User::factory()->non_admin()->create();
+        $userD = User::factory()->non_admin()->create();
+        $userE = User::factory()->guest()->create();
+        $this->actingAs($userE, 'sanctum');
 
+        $eventA = Event::factory()->create();
+        $eventB = Event::factory()->create();
+        $eventC = Event::factory()->create();
+        $eventD = Event::factory()->create();
+        $eventE = Event::factory()->create();
+
+        $userB->eventsHosted()->sync([$eventA->id, $eventB->id]);
+        $userC->eventsHosted()->sync([$eventC->id, $eventD->id]);
+        $userD->eventsHosted()->sync([$eventE->id]);
+
+        $response = $this->get('/api/v1/events/' . $eventE->id);
+        $this->unauthenticated($response);
+    }
     private function getEventJsonStructure()
     {
         return [
