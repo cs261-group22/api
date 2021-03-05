@@ -96,8 +96,8 @@ class EventsController extends Controller
         $event = Event::findOrFail($id);
 
         // The user can only update events that they manage
-        if (! $event->hostedByUser(Auth::user())) {
-            return response('You must host this event to modify it', 403);
+        if (!$event->hostedByUser(Auth::user())) {
+            return response()->json(['message' => 'Unauthenticated'], 403);
         }
 
         $this->validateEvent($request);
@@ -119,12 +119,12 @@ class EventsController extends Controller
         $event = Event::findOrFail($id);
 
         // The user can only publish events that they manage
-        if (! $event->hostedByUser(Auth::user())) {
-            return response('You must host this event to publish it', 403);
+        if (!$event->hostedByUser(Auth::user())) {
+            return response($status = 403)->json(['message' => 'Unauthenticated']);
         }
 
         // The event must be publishable
-        if (! $event->is_publishable) {
+        if (!$event->is_publishable) {
             return response('This event cannot be published in it\'s current state', 422);
         }
 
@@ -145,8 +145,8 @@ class EventsController extends Controller
         $event = Event::findOrFail($id);
 
         // The user can only update events that they manage
-        if (! $event->hostedByUser(Auth::user())) {
-            return response('You must host this event to delete it', 403);
+        if (!$event->hostedByUser(Auth::user())) {
+            return response($status = 403)->json(['message' => 'Unauthenticated']);
         }
 
         $event->delete();
