@@ -29,7 +29,7 @@ class EventHostsController extends Controller
         $event = Event::findOrFail($id);
 
         // Only admins and event hosts can view the joined users
-        if (!($user->is_admin || $event->hostedByUser($user))) {
+        if (! ($user->is_admin || $event->hostedByUser($user))) {
             return response()->json(['message' => 'Unauthenticated'], 403);
         }
 
@@ -50,7 +50,7 @@ class EventHostsController extends Controller
         $event = Event::findOrFail($id);
 
         // Only admins and event hosts can modify hosts for an event
-        if (!($user->is_admin || $event->hostedByUser($user))) {
+        if (! ($user->is_admin || $event->hostedByUser($user))) {
             return response()->json(['message' => 'Unauthenticated'], 403);
         }
 
