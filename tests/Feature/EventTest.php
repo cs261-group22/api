@@ -149,7 +149,7 @@ class EventTest extends TestCase
     {
         $code = Event::generateUniqueEventCode();
         Event::factory()->create(['code' => $code]);
-        $response = $this->get('/api/v1/events/code/'.$code);
+        $response = $this->get('/api/v1/events/code/' . $code);
         // $response->dump();
         $response->assertStatus(200)->assertJsonStructure([
             'data' => [
@@ -244,7 +244,7 @@ class EventTest extends TestCase
     {
         $event = $this->insertEvents($actingUser)['events'][4];
 
-        return $this->get('/api/v1/events/'.$event->id);
+        return $this->get('/api/v1/events/' . $event->id);
     }
 
     public function testAdminUpdateEvent()
@@ -275,7 +275,7 @@ class EventTest extends TestCase
     {
         $event = $this->insertEvents($actingUser)['events'][4];
 
-        return $this->putJson('/api/v1/events/'.$event->id, [
+        return $this->putJson('/api/v1/events/' . $event->id, [
             'name' => 'name',
             'ends_at' => now(),
             'starts_at' => now(),
@@ -314,7 +314,7 @@ class EventTest extends TestCase
     {
         $event = $this->insertEvents($actingUser)['events'][4];
 
-        return $this->delete('/api/v1/events/'.$event->id);
+        return $this->delete('/api/v1/events/' . $event->id);
     }
 
     public function testAdminPublishEvent()
@@ -350,7 +350,7 @@ class EventTest extends TestCase
         ]);
         $users[3]->eventsHosted()->sync([$event->id]);
 
-        return $this->post('/api/v1/events/'.$event->id.'/publish');
+        return $this->post('/api/v1/events/' . $event->id . '/publish');
     }
 
     public function testAdminEventHosts()
@@ -381,16 +381,39 @@ class EventTest extends TestCase
     {
         $event = $this->insertEvents($actingUser)['events'][4];
 
-        return $this->get('/api/v1/events/'.$event->id.'/hosts');
+        return $this->get('/api/v1/events/' . $event->id . '/hosts');
     }
 
     public function testAdminEventHostsUpdate()
     {
-        $data = $this->insertEvents(0);
+        $this->runEventHostsUpdate(0, true);
+    }
+
+    public function testNonAdminEventHostsUpdate()
+    {
+        $this->runEventHostsUpdate(3, true);
+    }
+
+    public function testGuestEventHostsUpdate()
+    {
+        $this->runEventHostsUpdate(4, false);
+    }
+
+    public function testNonAdminEventHostsUpdateNoAccess()
+    {
+        $this->runEventHostsUpdate(2, false);
+    }
+
+    public function runEventHostsUpdate($actingUser, $hasAccess)
+    {
+        $data = $this->insertEvents($actingUser);
         $user = $data['users'][2];
         $event = $data['events'][4];
-        $response = $this->patchJson('/api/v1/events/'.$event->id.'/hosts', ['hosts' => [$user->email]]);
-        $this->validHosts($response, collect([$user]));
+        $response = $this->patchJson('/api/v1/events/' . $event->id . '/hosts', ['hosts' => [$user->email]]);
+        if ($hasAccess)
+            $this->validHosts($response, collect([$user]));
+        else
+            $this->unauthenticated($response);
     }
 
     private function insertUsers($actingUser)
