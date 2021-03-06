@@ -28,7 +28,6 @@ class AuthController extends Controller
         // Retrieve the user associated with the provided email from the database
         $user = User::where('email', $request->input('email'))->first();
 
-
         // The users email address must be verified to login
         if ($user == null) {
             return response('Invalid account credentials provided', 401);

@@ -2,14 +2,13 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Tests\TestCase;
 use App\Models\Event;
 use App\Models\Question;
 use App\Models\User;
-use Illuminate\Database\Eloquent\Collection;
-use \Illuminate\Testing\TestResponse;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Testing\TestResponse;
+use Tests\TestCase;
 
 class EventTest extends TestCase
 {
@@ -23,7 +22,7 @@ class EventTest extends TestCase
     }
 
     /**
-     * A test for admins to access a list of all events
+     * A test for admins to access a list of all events.
      *
      * @return void
      */
@@ -48,10 +47,9 @@ class EventTest extends TestCase
         $expectedEvents = collect([$eventA, $eventB, $eventC, $eventD, $eventC]);
         $response = $this->get('/api/v1/events');
         $response->assertStatus(200)->assertJsonStructure([
-            'data' =>
-            [
-                '*' => $this->getEventJsonStructure()
-            ]
+            'data' => [
+                '*' => $this->getEventJsonStructure(),
+            ],
         ]);
 
         $ids = collect($response['data'])->pluck('id');
@@ -61,7 +59,7 @@ class EventTest extends TestCase
     }
 
     /**
-     * A test for non admins to access a list of all events
+     * A test for non admins to access a list of all events.
      *
      * @return void
      */
@@ -86,10 +84,9 @@ class EventTest extends TestCase
         $expectedEvents = collect([$eventC, $eventD]);
         $response = $this->get('/api/v1/events');
         $response->assertStatus(200)->assertJsonStructure([
-            'data' =>
-            [
-                '*' => $this->getEventJsonStructure()
-            ]
+            'data' => [
+                '*' => $this->getEventJsonStructure(),
+            ],
         ]);
 
         $ids = collect($response['data'])->pluck('id');
@@ -99,7 +96,7 @@ class EventTest extends TestCase
     }
 
     /**
-     * A test for guest to access a list of all events
+     * A test for guest to access a list of all events.
      *
      * @return void
      */
@@ -112,9 +109,8 @@ class EventTest extends TestCase
         $this->unauthenticated($response);
     }
 
-
     /**
-     * A test for admins to access a list of all events
+     * A test for admins to access a list of all events.
      *
      * @return void
      */
@@ -126,7 +122,7 @@ class EventTest extends TestCase
     }
 
     /**
-     * A test for non admins to access a list of all events
+     * A test for non admins to access a list of all events.
      *
      * @return void
      */
@@ -138,7 +134,7 @@ class EventTest extends TestCase
     }
 
     /**
-     * A test for guest to access a list of all events
+     * A test for guest to access a list of all events.
      *
      * @return void
      */
@@ -156,8 +152,7 @@ class EventTest extends TestCase
         $response = $this->get('/api/v1/events/code/' . $code);
         // $response->dump();
         $response->assertStatus(200)->assertJsonStructure([
-            'data' =>
-            [
+            'data' => [
                 'id',
                 'name',
                 'code',
@@ -166,14 +161,14 @@ class EventTest extends TestCase
                 'starts_at',
                 'description',
                 'allow_guests',
-                'max_sessions'
+                'max_sessions',
 
-            ]
+            ],
         ])->assertJsonPath('data.code', $code);
     }
 
     /**
-     * A test for admins to access a list of all events
+     * A test for admins to access a list of all events.
      *
      * @return void
      */
@@ -186,7 +181,7 @@ class EventTest extends TestCase
     }
 
     /**
-     * A test for non admins to access a list of all events
+     * A test for non admins to access a list of all events.
      *
      * @return void
      */
@@ -199,7 +194,7 @@ class EventTest extends TestCase
     }
 
     /**
-     * A test for guest to access a list of all events
+     * A test for guest to access a list of all events.
      *
      * @return void
      */
@@ -217,9 +212,9 @@ class EventTest extends TestCase
         $guests = $this->faker->boolean();
         $draft = $this->faker->boolean();
         $response = $this->postJson('/api/v1/events', ['name' => $name, 'allow_guests' => $guests, 'is_draft' => $draft]);
+
         return $response;
     }
-
 
     public function testAdminShowEvent()
     {
@@ -287,7 +282,6 @@ class EventTest extends TestCase
         $this->unauthenticated($response);
     }
 
-
     public function testGuestShowEvent()
     {
         $userA = User::factory()->admin()->create();
@@ -336,7 +330,7 @@ class EventTest extends TestCase
             'is_draft' => true,
             'description' => 'description',
             'allow_guests' => true,
-            'max_sessions' => 4
+            'max_sessions' => 4,
         ]);
         $this->unauthenticated($response);
     }
@@ -366,11 +360,10 @@ class EventTest extends TestCase
             'is_draft' => true,
             'description' => 'description',
             'allow_guests' => true,
-            'max_sessions' => 4
+            'max_sessions' => 4,
         ]);
         $response->assertStatus(200)->assertJsonStructure(['data' => $this->getEventJsonStructure()]);
     }
-
 
     public function testNonAdminUpdateEvent()
     {
@@ -397,11 +390,10 @@ class EventTest extends TestCase
             'is_draft' => true,
             'description' => 'description',
             'allow_guests' => true,
-            'max_sessions' => 4
+            'max_sessions' => 4,
         ]);
         $response->assertStatus(200)->assertJsonStructure(['data' => $this->getEventJsonStructure()]);
     }
-
 
     public function testNonAdminUpdateEventNoAccess()
     {
@@ -428,7 +420,7 @@ class EventTest extends TestCase
             'is_draft' => true,
             'description' => 'description',
             'allow_guests' => true,
-            'max_sessions' => 4
+            'max_sessions' => 4,
         ]);
         $this->unauthenticated($response);
     }
@@ -521,7 +513,6 @@ class EventTest extends TestCase
         $this->unauthenticated($response);
     }
 
-
     public function testAdminPublishEvent()
     {
         $userA = User::factory()->admin()->create();
@@ -533,7 +524,7 @@ class EventTest extends TestCase
 
         $eventE = Event::factory()->draft()->create();
         $question = Question::factory()->create([
-            'event_id' => $eventE->id
+            'event_id' => $eventE->id,
         ]);
 
         $userD->eventsHosted()->sync([$eventE->id]);
@@ -552,7 +543,7 @@ class EventTest extends TestCase
 
         $eventE = Event::factory()->draft()->create();
         $question = Question::factory()->create([
-            'event_id' => $eventE->id
+            'event_id' => $eventE->id,
         ]);
 
         $userD->eventsHosted()->sync([$eventE->id]);
@@ -571,7 +562,7 @@ class EventTest extends TestCase
 
         $eventE = Event::factory()->draft()->create();
         $question = Question::factory()->create([
-            'event_id' => $eventE->id
+            'event_id' => $eventE->id,
         ]);
 
         $userD->eventsHosted()->sync([$eventE->id]);
@@ -590,7 +581,7 @@ class EventTest extends TestCase
 
         $eventE = Event::factory()->draft()->create();
         $question = Question::factory()->create([
-            'event_id' => $eventE->id
+            'event_id' => $eventE->id,
         ]);
 
         $userD->eventsHosted()->sync([$eventE->id]);
@@ -641,6 +632,7 @@ class EventTest extends TestCase
         $response = $this->get('/api/v1/events/' . $eventE->id . '/hosts');
         $response->assertStatus(200)->assertJsonStructure(['data' => ['*' => $this->getUserJsonStructure()]]);
     }
+
     public function testGuestEventHosts()
     {
         $userA = User::factory()->admin()->create();
@@ -662,6 +654,7 @@ class EventTest extends TestCase
         $response = $this->get('/api/v1/events/' . $eventE->id . '/hosts');
         $this->unauthenticated($response);
     }
+
     public function testNonAdminEventHostsNoAccess()
     {
         $userA = User::factory()->admin()->create();
@@ -683,6 +676,61 @@ class EventTest extends TestCase
         $response = $this->get('/api/v1/events/' . $eventE->id . '/hosts');
         $this->unauthenticated($response);
     }
+
+    public function testAdminEventHostsUpdate()
+    {
+        $userA = User::factory()->admin()->create();
+        $userB = User::factory()->admin()->create();
+        $userC = User::factory()->non_admin()->create();
+        $userD = User::factory()->non_admin()->create();
+        $userE = User::factory()->guest()->create();
+        $this->actingAs($userA, 'sanctum');
+
+        $eventA = Event::factory()->create();
+        $eventB = Event::factory()->create();
+        $eventC = Event::factory()->create();
+        $eventD = Event::factory()->create();
+        $eventE = Event::factory()->create();
+
+        $userB->eventsHosted()->sync([$eventA->id, $eventB->id]);
+        $userC->eventsHosted()->sync([$eventC->id, $eventD->id]);
+        $userD->eventsHosted()->sync([$eventE->id]);
+        $response = $this->patchJson('/api/v1/events/' . $eventE->id . '/hosts', ['hosts' => [$userC->email]]);
+        $response->assertStatus(200)->assertJsonStructure(['data' => ['*' => $this->getUserJsonStructure()]]);
+
+        $this->validHosts($response, collect([$userC]));
+    }
+
+    private function enterEvents($actingUser){
+        $userA = User::factory()->admin()->create();
+        $userB = User::factory()->admin()->create();
+        $userC = User::factory()->non_admin()->create();
+        $userD = User::factory()->non_admin()->create();
+        $userE = User::factory()->guest()->create();
+        $this->actingAs([$userA,$userB,$userC,$userD,$userE], 'sanctum');
+
+        $eventA = Event::factory()->create();
+        $eventB = Event::factory()->create();
+        $eventC = Event::factory()->create();
+        $eventD = Event::factory()->create();
+        $eventE = Event::factory()->create();
+
+        $userB->eventsHosted()->sync([$eventA->id, $eventB->id]);
+        $userC->eventsHosted()->sync([$eventC->id, $eventD->id]);
+        $userD->eventsHosted()->sync([$eventE->id]);
+
+    }
+
+    private function validHosts($response, $users)
+    {
+        $response->assertStatus(200)->assertJsonStructure(['data' => ['*' => $this->getUserJsonStructure()]]);
+
+        $ids = collect($response['data'])->pluck('id');
+        $users->each(function (User $user) use ($ids) {
+            $this->assertContains($user->id, $ids);
+        });
+    }
+
     private function getEventJsonStructure()
     {
         return [
@@ -694,7 +742,7 @@ class EventTest extends TestCase
             'starts_at',
             'description',
             'allow_guests',
-            'max_sessions'
+            'max_sessions',
         ];
     }
 
@@ -706,7 +754,7 @@ class EventTest extends TestCase
             'name',
             'is_admin',
             'is_guest',
-            'email_verified_at'
+            'email_verified_at',
         ];
     }
 }

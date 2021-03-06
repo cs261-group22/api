@@ -4,7 +4,6 @@ namespace Database\Factories;
 
 use App\Models\Event;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Str;
 
 class EventFactory extends Factory
 {
@@ -34,12 +33,11 @@ class EventFactory extends Factory
         ];
     }
 
-
     public function draft()
     {
         return $this->state(function (array $attributes) {
             return [
-                'is_draft' => true
+                'is_draft' => true,
             ];
         });
     }

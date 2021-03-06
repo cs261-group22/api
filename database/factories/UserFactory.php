@@ -40,7 +40,7 @@ class UserFactory extends Factory
         return $this->state(function (array $attributes) {
             return [
                 'is_admin' => true,
-                'is_guest' => false
+                'is_guest' => false,
             ];
         });
     }
@@ -50,7 +50,7 @@ class UserFactory extends Factory
         return $this->state(function (array $attributes) {
             return [
                 'is_admin' => false,
-                'is_guest' => false
+                'is_guest' => false,
             ];
         });
     }
@@ -60,7 +60,7 @@ class UserFactory extends Factory
         return $this->state(function (array $attributes) {
             return [
                 'is_admin' => false,
-                'is_guest' => true
+                'is_guest' => true,
             ];
         });
     }

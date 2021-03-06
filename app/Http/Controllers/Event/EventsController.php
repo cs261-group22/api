@@ -45,7 +45,7 @@ class EventsController extends Controller
             ->where('id', $id)
             ->firstOrFail();
 
-        if (!$event->hostedByUser(Auth::user())) {
+        if (! $event->hostedByUser(Auth::user())) {
             return response()->json(['message' => 'Unauthenticated'], 403);
         }
 
@@ -107,7 +107,7 @@ class EventsController extends Controller
         $event = Event::findOrFail($id);
 
         // The user can only update events that they manage
-        if (!$event->hostedByUser(Auth::user())) {
+        if (! $event->hostedByUser(Auth::user())) {
             return response()->json(['message' => 'Unauthenticated'], 403);
         }
 
@@ -130,12 +130,12 @@ class EventsController extends Controller
         $event = Event::findOrFail($id);
 
         // The user can only publish events that they manage
-        if (!$event->hostedByUser(Auth::user())) {
+        if (! $event->hostedByUser(Auth::user())) {
             return response()->json(['message' => 'Unauthenticated'], 403);
         }
 
         // The event must be publishable
-        if (!$event->is_publishable) {
+        if (! $event->is_publishable) {
             return response('This event cannot be published in it\'s current state', 422);
         }
 
@@ -156,7 +156,7 @@ class EventsController extends Controller
         $event = Event::findOrFail($id);
 
         // The user can only update events that they manage
-        if (!$event->hostedByUser(Auth::user())) {
+        if (! $event->hostedByUser(Auth::user())) {
             return response()->json(['message' => 'Unauthenticated'], 403);
         }
 

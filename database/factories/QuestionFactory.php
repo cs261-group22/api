@@ -22,6 +22,7 @@ class QuestionFactory extends Factory
     public function definition()
     {
         $responses = $this->faker->numberBetween($min = 1, $max = 4);
+
         return [
             'type' => Question::TYPE_FREE_TEXT,
             'order' => 0,

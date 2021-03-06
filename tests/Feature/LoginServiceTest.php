@@ -2,19 +2,17 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Tests\TestCase;
 use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
+use Tests\TestCase;
 
 class LoginServiceTest extends TestCase
 {
-
     use RefreshDatabase;
 
     /**
-     * A test for logging in as admin
+     * A test for logging in as admin.
      *
      * @return void
      */
@@ -25,18 +23,18 @@ class LoginServiceTest extends TestCase
 
         $user = User::factory()->admin()->create([
             'email' => $email,
-            'password' => Hash::make($password)
+            'password' => Hash::make($password),
         ]);
         $response = $this->postJson('/api/v1/login/employee', ['email' => $email, 'password' => $password]);
         $response->assertStatus(200)->assertJsonStructure(['token']);
         $token = $response['token'];
 
-        $validResponse = $this->withHeader('Authorization', 'Bearer ' . $token)->get('/api/v1/users');
+        $validResponse = $this->withHeader('Authorization', 'Bearer '.$token)->get('/api/v1/users');
         $validResponse->assertStatus(200);
     }
 
     /**
-     * A test for logging in as admin with wrong password
+     * A test for logging in as admin with wrong password.
      *
      * @return void
      */
@@ -47,14 +45,14 @@ class LoginServiceTest extends TestCase
 
         $user = User::factory()->admin()->create([
             'email' => $email,
-            'password' => Hash::make($password)
+            'password' => Hash::make($password),
         ]);
-        $response = $this->postJson('/api/v1/login/employee', ['email' => $email, 'password' => $password . '1']);
+        $response = $this->postJson('/api/v1/login/employee', ['email' => $email, 'password' => $password.'1']);
         $response->assertStatus(401);
     }
 
     /**
-     * A test for logging in as admin with wrong email
+     * A test for logging in as admin with wrong email.
      *
      * @return void
      */
@@ -65,14 +63,14 @@ class LoginServiceTest extends TestCase
 
         $user = User::factory()->admin()->create([
             'email' => $email,
-            'password' => Hash::make($password)
+            'password' => Hash::make($password),
         ]);
-        $response = $this->postJson('/api/v1/login/employee', ['email' => $email . '1', 'password' => $password]);
+        $response = $this->postJson('/api/v1/login/employee', ['email' => $email.'1', 'password' => $password]);
         $response->assertStatus(401);
     }
 
     /**
-     * A test for logging in as non admin
+     * A test for logging in as non admin.
      *
      * @return void
      */
@@ -83,19 +81,18 @@ class LoginServiceTest extends TestCase
 
         $user = User::factory()->non_admin()->create([
             'email' => $email,
-            'password' => Hash::make($password)
+            'password' => Hash::make($password),
         ]);
         $response = $this->postJson('/api/v1/login/employee', ['email' => $email, 'password' => $password]);
         $response->assertStatus(200)->assertJsonStructure(['token']);
         $token = $response['token'];
 
-        $validResponse = $this->withHeader('Authorization', 'Bearer ' . $token)->get('/api/v1/users');
+        $validResponse = $this->withHeader('Authorization', 'Bearer '.$token)->get('/api/v1/users');
         $validResponse->assertStatus(403);
     }
 
-
     /**
-     * A test for logging in as non admin with wrong password
+     * A test for logging in as non admin with wrong password.
      *
      * @return void
      */
@@ -106,14 +103,14 @@ class LoginServiceTest extends TestCase
 
         $user = User::factory()->non_admin()->create([
             'email' => $email,
-            'password' => Hash::make($password)
+            'password' => Hash::make($password),
         ]);
-        $response = $this->postJson('/api/v1/login/employee', ['email' => $email, 'password' => $password . '1']);
+        $response = $this->postJson('/api/v1/login/employee', ['email' => $email, 'password' => $password.'1']);
         $response->assertStatus(401);
     }
 
     /**
-     * A test for logging in as non admin with wrong email
+     * A test for logging in as non admin with wrong email.
      *
      * @return void
      */
@@ -124,14 +121,14 @@ class LoginServiceTest extends TestCase
 
         $user = User::factory()->non_admin()->create([
             'email' => $email,
-            'password' => Hash::make($password)
+            'password' => Hash::make($password),
         ]);
-        $response = $this->postJson('/api/v1/login/employee', ['email' => $email . '1', 'password' => $password]);
+        $response = $this->postJson('/api/v1/login/employee', ['email' => $email.'1', 'password' => $password]);
         $response->assertStatus(401);
     }
 
     /**
-     * A test for logging in as guest
+     * A test for logging in as guest.
      *
      * @return void
      */
@@ -141,7 +138,7 @@ class LoginServiceTest extends TestCase
         $response->assertStatus(200)->assertJsonStructure(['token']);
         $token = $response['token'];
 
-        $validResponse = $this->withHeader('Authorization', 'Bearer ' . $token)->get('/api/v1/users');
+        $validResponse = $this->withHeader('Authorization', 'Bearer '.$token)->get('/api/v1/users');
         $validResponse->assertStatus(403);
     }
 }
