@@ -3,6 +3,7 @@
 namespace App\Listeners;
 
 use App\Contracts\AnalyticsService;
+use App\Events\SessionAnalysisReceived;
 
 class RequestSessionAnalysis
 {
@@ -21,7 +22,7 @@ class RequestSessionAnalysis
     /**
      * Handle the event.
      *
-     * @param  object  $event
+     * @param object $event
      * @return void
      */
     public function handle($event)
@@ -31,12 +32,17 @@ class RequestSessionAnalysis
         // Request an analysis for each free text response in the session
         foreach ($session->responses()->toFreeTextQuestions()->get() as $response) {
             $analysis = $this->analyticsService->RequestIndividualAnalysis([
-                'response' => $response->value
+                'response' => $response->value,
             ]);
 
             $response->update([
-                'sentiment' => $analysis
+                'sentiment' => $analysis,
             ]);
         }
+
+        // Load relationships required by the UI
+        $session->load('user', 'responses');
+
+        event(new SessionAnalysisReceived($session));
     }
 }

@@ -18,12 +18,12 @@ class MockAnalyticsService implements AnalyticsService
             'urgency' => round(mt_rand() / mt_getrandmax(), 2),
             'sentiment' => [
                 'score' => [1, -1][array_rand([1, -1], 1)] * round(mt_rand() / mt_getrandmax(), 2),
-                'magnitude' => round(mt_rand() / mt_getrandmax(), 2)
+                'magnitude' => round(mt_rand() / mt_getrandmax(), 2),
             ],
             'word_pairs' => [
                 ['Bad', 'experience'],
-                ['terrible', 'speaker']
-            ]
+                ['terrible', 'speaker'],
+            ],
         ];
     }
 

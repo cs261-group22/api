@@ -38,7 +38,8 @@ class Response extends Model
      *
      * @param Builder $query
      */
-    public function scopeToFreeTextQuestions(Builder $query) {
+    public function scopeToFreeTextQuestions(Builder $query)
+    {
         $query->whereHas(
             'question',
             fn ($query) => $query->where('type', Question::TYPE_FREE_TEXT)
@@ -50,7 +51,8 @@ class Response extends Model
      *
      * @param Builder $query
      */
-    public function scopeToMultipleChoiceQuestions(Builder $query) {
+    public function scopeToMultipleChoiceQuestions(Builder $query)
+    {
         $query->whereHas(
             'question',
             fn ($query) => $query->where('type', Question::TYPE_MULTIPLE_CHOICE)

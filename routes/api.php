@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Answer\AnswersController;
+use App\Http\Controllers\Event\EventExportController;
 use App\Http\Controllers\Event\EventHostsController;
 use App\Http\Controllers\Event\EventQuestionsController;
 use App\Http\Controllers\Event\EventsController;
@@ -52,6 +53,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/events/{id}', [EventsController::class, 'show'])->name('events.show');
     Route::put('/events/{id}', [EventsController::class, 'update'])->name('events.update');
     Route::delete('/events/{id}', [EventsController::class, 'destroy'])->name('events.destroy');
+    Route::get('/events/{id}/export', [EventExportController::class, 'export'])->name('events.export');
     Route::post('/events/{id}/publish', [EventsController::class, 'publish'])->name('events.publish');
     Route::get('/events/{id}/hosts', [EventHostsController::class, 'index'])->name('events.hosts.index');
     Route::patch('/events/{id}/hosts', [EventHostsController::class, 'update'])->name('events.hosts.update');

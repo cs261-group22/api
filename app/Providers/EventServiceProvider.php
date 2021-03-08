@@ -28,7 +28,7 @@ class EventServiceProvider extends ServiceProvider
 
         SessionSubmitted::class => [
             RequestSessionAnalysis::class,
-        ]
+        ],
     ];
 
     /**

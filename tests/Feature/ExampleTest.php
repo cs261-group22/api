@@ -26,7 +26,7 @@ class ExampleTest extends TestCase
 
         $user = User::factory()->admin()->create([
             'email' => $email,
-            'password' => Hash::make($password)
+            'password' => Hash::make($password),
         ]);
 
         $response = $this->postJson(route('login.employee'), ['email' => $email, 'password' => $password]);
