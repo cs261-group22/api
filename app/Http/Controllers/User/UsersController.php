@@ -71,12 +71,12 @@ class UsersController extends Controller
 
         // The user must lead at least one team to be able to create new users
         if (! ($user->is_team_leader || $user->is_admin)) {
-            return response('Only team leaders and admins can create new accounts', 403);
+            return response()->json(['message' => 'Unauthenticated'], 403);
         }
 
         // Only admin users can add new admins
         if ($request->input('is_admin') && ! $user->is_admin) {
-            return response('Only admin users can create new admin accounts', 403);
+            return response()->json(['message' => 'Unauthenticated'], 403);
         }
 
         // Create the new user

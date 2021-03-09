@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Event;
+use App\Models\Session;
 use App\Models\Question;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -414,6 +415,22 @@ class EventTest extends TestCase
             $this->validHosts($response, collect([$user]));
         else
             $this->unauthenticated($response);
+    }
+
+    public function testAdminGetSessions()
+    {
+        $data = $this->insertEvents(0);
+
+    }
+
+    public function insertSessions($actingUser)
+    {
+        $data = $this->insertEvents($actingUser);
+        $session = Session::factory()->create();
+    }
+
+    public function runGetSessions()
+    {
     }
 
     private function insertUsers($actingUser)

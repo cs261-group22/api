@@ -30,17 +30,17 @@ class AuthController extends Controller
 
         // The users email address must be verified to login
         if ($user == null) {
-            return response('Invalid account credentials provided', 401);
+            return response()->json(['message' => 'Invalid account credentials provided'], 401);
         }
 
         // The users email address must be verified to login
         if (! $user->email_verified) {
-            return response('Please check your inbox for a verification link before logging in', 401);
+            return response()->json(['message' => 'Email not verified'], 401);
         }
 
         // Attempt to log the user in with the provided details
         if (! $this->authenticateUser($request->input('email'), $request->input('password'))) {
-            return response('Invalid account credentials provided', 401);
+            return response()->json(['message' => 'Invalid account credentials provided'], 401);
         }
 
         return response()->json([
