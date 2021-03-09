@@ -1,0 +1,2407 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "description": "This is an api for a feedback service used to track user engagement for events",
+        "version": "1.0.0",
+        "title": "Feedbank",
+        "license": {
+            "name": "Creative Commons Attribution-NonCommercial-NoDerivs",
+            "url": "https://creativecommons.org/licenses/by-nc-nd/3.0/"
+        }
+    },
+    "servers": [
+        {
+            "url": "https://api.feedbank.tech/api/v1"
+        }
+    ],
+    "tags": [
+        {
+            "name": "User",
+            "description": "Operations used to interface with users"
+        },
+        {
+            "name": "Authentication",
+            "description": "Operations for log-in purposes"
+        },
+        {
+            "name": "Account",
+            "description": "Operations for account settings"
+        },
+        {
+            "name": "Events",
+            "description": "Operations for managing and viewing events"
+        },
+        {
+            "name": "Questions",
+            "description": "Operations for managing and viewing questions"
+        },
+        {
+            "name": "Answers",
+            "description": "Operations for managing and viewing answers"
+        },
+        {
+            "name": "Sessions",
+            "description": "Operations for managing and viewing sessions"
+        },
+        {
+            "name": "Teams",
+            "description": "Operations for managing and viewing sessions"
+        }
+    ],
+    "paths": {
+        "/user": {
+            "post": {
+                "tags": ["User"],
+                "summary": "Create user",
+                "description": "This can only be done by an admin user or be a team leader. The email will get an email which they will need to use to validate their email and enter a password.",
+                "requestBody": {
+                    "required": true,
+                    "description": "Created user object",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "is_admin": {
+                                        "type": "boolean"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/User"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/UnprocessableEntityError"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "get": {
+                "tags": ["User"],
+                "summary": "Get your user data",
+                "description": "The list of users are returned, you must be an admin to use this.",
+                "responses": {
+                    "200": {
+                        "description": "Successfully joined event",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/User"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/login/guest": {
+            "post": {
+                "tags": ["Authentication"],
+                "summary": "Log in as a guest user",
+                "description": "This allows the user to log in as a guest account.",
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/ValidLogin"
+                    }
+                }
+            }
+        },
+        "/login/employee": {
+            "post": {
+                "tags": ["Authentication"],
+                "summary": "Log in as an employee user",
+                "description": "This allows the user to log in as an employee account.",
+                "requestBody": {
+                    "required": true,
+                    "description": "User log in information",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "example": "plain text password"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/ValidLogin"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/InvalidLogin"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/UnprocessableEntityError"
+                    }
+                }
+            }
+        },
+        "/logout": {
+            "post": {
+                "tags": ["Authentication"],
+                "summary": "Log out of account",
+                "description": "The token linked to the current user session is removed from being valid.",
+                "responses": {
+                    "200": {
+                        "description": "Successful log out"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/email/resend": {
+            "post": {
+                "tags": ["Account"],
+                "summary": "Request a new validation email",
+                "description": "An new validation email will be sent to the email given.",
+                "requestBody": {
+                    "required": true,
+                    "description": "User log in information",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "oneOf": [
+                                    {
+                                        "type": "object",
+                                        "properties": {
+                                            "email_address": {
+                                                "type": "string",
+                                                "format": "email"
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "type": "object",
+                                        "properties": {
+                                            "email_token": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful email request"
+                    },
+                    "403": {
+                        "description": "Email validated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "enum": [
+                                                "That account has already been validated"
+                                            ]
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/UnprocessableEntityError"
+                    }
+                }
+            }
+        },
+        "/email/verify": {
+            "post": {
+                "tags": ["Account"],
+                "summary": "Validate an email",
+                "description": "The email is validated and the name and password fields are set in the user account. ID, email and timestamp come from the link from the activation link.",
+                "requestBody": {
+                    "required": true,
+                    "description": "User log in information",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "email": {
+                                        "type": "string"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "example": "plain text password"
+                                    },
+                                    "password_confirmation": {
+                                        "type": "string",
+                                        "example": "plain text password"
+                                    },
+                                    "id": {
+                                        "type": "string"
+                                    },
+                                    "timestamp": {
+                                        "type": "string"
+                                    },
+                                    "name": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful email validation"
+                    },
+                    "403": {
+                        "description": "Unsucessful email validation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "enum": [
+                                                "That account has already been validated",
+                                                "The activation link has expired"
+                                            ]
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/UnprocessableEntityError"
+                    }
+                }
+            }
+        },
+        "/password/recover": {
+            "post": {
+                "tags": ["Account"],
+                "summary": "Request a recovery email",
+                "description": "The email listed will be send a password recovery email.",
+                "requestBody": {
+                    "required": true,
+                    "description": "User log in information",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful password recovery"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/UnprocessableEntityError"
+                    }
+                }
+            }
+        },
+        "/password/reset": {
+            "post": {
+                "tags": ["Account"],
+                "summary": "Request a recovery email",
+                "description": "The password is reset. Email and timestamp is taken from the link from the email.",
+                "requestBody": {
+                    "required": true,
+                    "description": "User log in information",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "email": {
+                                        "type": "string"
+                                    },
+                                    "timestep": {
+                                        "type": "string"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "example": "plain text password"
+                                    },
+                                    "password_confirmation": {
+                                        "type": "string",
+                                        "example": "plain text password"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful password reset"
+                    },
+                    "403": {
+                        "description": "Unsucessful email validation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "enum": [
+                                                "The activation link has expired"
+                                            ]
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/UnprocessableEntityError"
+                    }
+                }
+            }
+        },
+        "/events/code/{code}": {
+            "get": {
+                "tags": ["Events"],
+                "summary": "Join an event through the code given",
+                "description": "Gets the event information from the event related to the code.",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "code",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true,
+                        "description": "ID of the event to join"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully joined event",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/Event"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "404": {
+                        "description": "Event for code not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/users": {
+            "get": {
+                "tags": ["User"],
+                "summary": "Get a list of all users",
+                "description": "The list of users are returned, you must be an admin to use this.",
+                "responses": {
+                    "200": {
+                        "description": "Successfully joined event",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/User"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/user/{id}": {
+            "patch": {
+                "tags": ["User"],
+                "summary": "Update the user",
+                "description": "Update the user by changing name or admin privileges. You need to be admin.",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true,
+                        "description": "ID of the user to update"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "description": "Information to update in user",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "is_admin": {
+                                        "type": "boolean",
+                                        "nullable": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successfully updated user",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/User"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "404": {
+                        "description": "User with id not found"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/UnprocessableEntityError"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/events": {
+            "get": {
+                "tags": ["Events"],
+                "summary": "Gets the events hosted by current user",
+                "description": "Returns a list of events that the current user hosts.",
+                "responses": {
+                    "200": {
+                        "description": "Successful request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Event"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": ["Events"],
+                "summary": "Make a new event",
+                "description": "Makes a new event with the current user hosting it.",
+                "requestBody": {
+                    "required": true,
+                    "description": "The data to store for the event",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "is_draft": {
+                                        "type": "boolean"
+                                    },
+                                    "allow_guests": {
+                                        "type": "boolean"
+                                    },
+                                    "description": {
+                                        "type": "string"
+                                    },
+                                    "ends_at": {
+                                        "type": "string",
+                                        "format": "date-time",
+                                        "nullable": true
+                                    },
+                                    "starts_at": {
+                                        "type": "string",
+                                        "format": "date-time",
+                                        "nullable": true
+                                    },
+                                    "max_sessions": {
+                                        "type": "integer"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successfully added event",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/Event"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/UnprocessableEntityError"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/events/{id}": {
+            "get": {
+                "tags": ["Events"],
+                "summary": "Gets the event with given id",
+                "description": "Returns the event with the id given. Need to be admin or host the event.",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true,
+                        "description": "ID of the event to get"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/Event"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "404": {
+                        "description": "Event with id not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": ["Events"],
+                "summary": "Update the details of an event",
+                "description": "Updates the data for the event given by the id. Need to be admin or host the admin.\"",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true,
+                        "description": "ID of the event to get"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "description": "The data to store for the event",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "is_draft": {
+                                        "type": "boolean"
+                                    },
+                                    "allow_guests": {
+                                        "type": "boolean"
+                                    },
+                                    "description": {
+                                        "type": "string"
+                                    },
+                                    "ends_at": {
+                                        "type": "string",
+                                        "format": "date-time",
+                                        "nullable": true
+                                    },
+                                    "starts_at": {
+                                        "type": "string",
+                                        "format": "date-time",
+                                        "nullable": true
+                                    },
+                                    "max_sessions": {
+                                        "type": "integer"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successfully updated event",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/Event"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "404": {
+                        "description": "Event with id not found"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/UnprocessableEntityError"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": ["Events"],
+                "summary": "Deletes the event with given id",
+                "description": "Deletes the event with the id given. Need to be admin or host the event.",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true,
+                        "description": "ID of the event to get"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully deleted"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "404": {
+                        "description": "Event with id not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/events/{id}/publish": {
+            "post": {
+                "tags": ["Events"],
+                "summary": "Publishs the event with given id",
+                "description": "Publishs the event with the id given if it is publishable. For an event to be publishable, it needs to not be a draft, have a name, have start and end times correctly set so it is a valid time frame, have at least 1 question, all questions related to it need to have a prompt and all multiple choice questions have at least 2 answers. Need to be admin or host the event.",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true,
+                        "description": "ID of the event to get"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully published"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "404": {
+                        "description": "Event with id not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/events/{id}/hosts": {
+            "get": {
+                "tags": ["Events"],
+                "summary": "Get the hosts of event with given id",
+                "description": "Returns a list of hosts for the event with given id. Need to be admin or host the event.",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true,
+                        "description": "ID of the event to get"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/User"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "404": {
+                        "description": "Event with id not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "patch": {
+                "tags": ["Events"],
+                "summary": "Updates the hosts of event with given id",
+                "description": "Updates the hosts of the event to all the emails given. Need to be admin or host the event.",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true,
+                        "description": "ID of the event to get"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "description": "The new list of hosts",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "format": "email"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/User"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Error updating list",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "enum": [
+                                                "Unauthenticated",
+                                                "One or more of the provided users do not exist in the system"
+                                            ]
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Event with id not found"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/UnprocessableEntityError"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/events/{id}/sessions": {
+            "get": {
+                "tags": ["Events"],
+                "summary": "Get all sessions for the event with id",
+                "description": "Get all sessions related to an event with the id given. Need to be admin or host the event.",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true,
+                        "description": "ID of the event to get"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Session"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "404": {
+                        "description": "Event with id not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": ["Events"],
+                "summary": "Get a session for the event with id",
+                "description": "Makes a new session for an event with the id, if the user already has a session return that instead.",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true,
+                        "description": "ID of the event to get"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/Session"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "404": {
+                        "description": "Event with id not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/events/{id}/questions": {
+            "get": {
+                "tags": ["Events"],
+                "summary": "Get all questions for the event with id",
+                "description": "Get all questions related to an event with the id given. Need to be admin or host the event.",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true,
+                        "description": "ID of the event to get"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Question"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "404": {
+                        "description": "Event with id not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/questions": {
+            "post": {
+                "tags": ["Questions"],
+                "summary": "Make a new question",
+                "description": "Make a new question and link it to the event listed in the request. Need to be admin or host the event.",
+                "requestBody": {
+                    "required": true,
+                    "description": "The data of the question to add",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "event_id": {
+                                        "type": "integer"
+                                    },
+                                    "type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "free_text",
+                                            "multiple_choice"
+                                        ],
+                                        "nullable": true
+                                    },
+                                    "prompt": {
+                                        "type": "string",
+                                        "nullable": true
+                                    },
+                                    "min_responses": {
+                                        "type": "integer"
+                                    },
+                                    "max_responses": {
+                                        "type": "integer"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/Question"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/UnprocessableEntityError"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/questions/{id}": {
+            "get": {
+                "tags": ["Questions"],
+                "summary": "Get the question with id",
+                "description": "Get the question with the id given. Need to be admin or host the event.",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true,
+                        "description": "ID of the question to get"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/Question"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "404": {
+                        "description": "Question with id not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": ["Questions"],
+                "summary": "Update the question with id",
+                "description": "Update the question with the id given with data from body. Need to be admin or host the event.",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true,
+                        "description": "ID of the question to get"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "description": "The data to update the question with",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "event_id": {
+                                        "type": "integer"
+                                    },
+                                    "type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "free_text",
+                                            "multiple_choice"
+                                        ],
+                                        "nullable": true
+                                    },
+                                    "prompt": {
+                                        "type": "string",
+                                        "nullable": true
+                                    },
+                                    "min_responses": {
+                                        "type": "integer"
+                                    },
+                                    "max_responses": {
+                                        "type": "integer"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/Question"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "404": {
+                        "description": "Question with id not found"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/UnprocessableEntityError"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": ["Questions"],
+                "summary": "Deletes the question from event with id",
+                "description": "Deletes the question with the id given. Need to be admin or host the event.",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true,
+                        "description": "ID of the question to get"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully deleted"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "404": {
+                        "description": "Question with id not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/questions/{id}/move": {
+            "patch": {
+                "tags": ["Questions"],
+                "summary": "Reorder the question in the list",
+                "description": "Moves the question up or down in the question list. Need to be admin or host the event.",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true,
+                        "description": "ID of the question to get"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "description": "The direction to move question in",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "direction": {
+                                        "type": "string",
+                                        "enum": ["up", "down"]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successfully moved"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "404": {
+                        "description": "Question with id not found"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/UnprocessableEntityError"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/answers": {
+            "post": {
+                "tags": ["Answers"],
+                "summary": "Make a new answer",
+                "description": "Make a new answer and link it to the question listed in the request. Need to be admin or host the event.",
+                "requestBody": {
+                    "required": true,
+                    "description": "The data of the answer to add",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "question_id": {
+                                        "type": "integer"
+                                    },
+                                    "value": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/Answer"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/UnprocessableEntityError"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/answer/{id}": {
+            "get": {
+                "tags": ["Answers"],
+                "summary": "Get the answer with id",
+                "description": "Get the answer with the id given. Need to be admin or host the event.",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true,
+                        "description": "ID of the answer to get"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/Answer"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "404": {
+                        "description": "Answer with id not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": ["Answers"],
+                "summary": "Update the answer with id",
+                "description": "Update the answer with the id given with data from body. Need to be admin or host the event.",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true,
+                        "description": "ID of the answer to get"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "description": "The data to update the answer with",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "question_id": {
+                                        "type": "integer"
+                                    },
+                                    "value": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/Answer"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "404": {
+                        "description": "Answer with id not found"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/UnprocessableEntityError"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": ["Answers"],
+                "summary": "Deletes the answer from event with id",
+                "description": "Deletes the answer with the id given. Need to be admin or host the event.",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true,
+                        "description": "ID of the answer to get"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully deleted"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "404": {
+                        "description": "Answer with id not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/answer/{id}/move": {
+            "patch": {
+                "tags": ["Answers"],
+                "summary": "Reorder the answer in the list",
+                "description": "Moves the answer up or down in the answer list. Need to be admin or host the event.",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true,
+                        "description": "ID of the answer to get"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "description": "The direction to move answer in",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "direction": {
+                                        "type": "string",
+                                        "enum": ["up", "down"]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successfully moved"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "404": {
+                        "description": "Answer with id not found"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/UnprocessableEntityError"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/sessions/{id}": {
+            "get": {
+                "tags": ["Sessions"],
+                "summary": "Get the session with id",
+                "description": "Get the session with the id given. Need to be admin or host the event.",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true,
+                        "description": "ID of the session to get"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/Session"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "404": {
+                        "description": "Session with id not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/sessions/{id}/responses": {
+            "get": {
+                "tags": ["Sessions"],
+                "summary": "Get the session with id",
+                "description": "Get the session with the id given.",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true,
+                        "description": "ID of the session to get"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/Session"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Session with id not found"
+                    }
+                }
+            },
+            "patch": {
+                "tags": ["Sessions"],
+                "summary": "Update the session with id",
+                "description": "Updates the session with the id given with data from the body. All previous responses will be overwritten with this new data. Answer id should be used multiple choice value should be used for free text.",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true,
+                        "description": "ID of the session to get"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "description": "The data to update the session with",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "responses": {
+                                        "type": "array",
+                                        "items": {
+                                            "oneOf": [
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "value": {
+                                                            "type": "string"
+                                                        },
+                                                        "question_id": {
+                                                            "type": "integer"
+                                                        }
+                                                    }
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "answer_id": {
+                                                            "type": "integer"
+                                                        },
+                                                        "question_id": {
+                                                            "type": "integer"
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successfully updated"
+                    },
+                    "404": {
+                        "description": "Session with id not found"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/UnprocessableEntityError"
+                    }
+                }
+            }
+        },
+        "/sessions/{id}/submit": {
+            "post": {
+                "tags": ["Sessions"],
+                "summary": "Submits the session with id",
+                "description": "Submits the session with the id given. Will only submit if all questions have the correct amount of responses.",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true,
+                        "description": "ID of the session to get"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "description": "The overall mood of the session\"",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "mood": {
+                                        "type": "integer"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successfully submitted"
+                    },
+                    "404": {
+                        "description": "Session with id not found"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/UnprocessableEntityError"
+                    }
+                }
+            }
+        },
+        "/teams": {
+            "post": {
+                "tags": ["Teams"],
+                "summary": "Creates a new team",
+                "description": "Creates a new team with the given data. Can only be used by admins.",
+                "requestBody": {
+                    "required": true,
+                    "description": "The data for the team to be added",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "department": {
+                                        "type": "string",
+                                        "nullable": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successfully added",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/Team"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/UnprocessableEntityError"
+                    }
+                }
+            },
+            "get": {
+                "tags": ["Teams"],
+                "summary": "Gets teams managed by the user",
+                "description": "Returns a list of teams which the current user manages. Can not be used by guests.",
+                "responses": {
+                    "200": {
+                        "description": "Successful request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Team"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/teams/{id}": {
+            "get": {
+                "tags": ["Teams"],
+                "summary": "Get the team with id",
+                "description": "Get the answer with the id given. Need to be admin or manager of the team.",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true,
+                        "description": "ID of the team to get"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/Team"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "404": {
+                        "description": "Team with id not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": ["Teams"],
+                "summary": "Update the team with id",
+                "description": "Update the team with the id given with data from body. Need to be admin or manager of the team.",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true,
+                        "description": "ID of the team to get"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "description": "The data to update the team with",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "department": {
+                                        "type": "string",
+                                        "nullable": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successfully updated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/Team"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "404": {
+                        "description": "Team with id not found"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/UnprocessableEntityError"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": ["Teams"],
+                "summary": "Deletes the team with id",
+                "description": "Deletes the team with the id given. Need to be admin or manager of the team.",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true,
+                        "description": "ID of the answer to get"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully deleted"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "404": {
+                        "description": "Team with id not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/teams/{id}/users": {
+            "patch": {
+                "tags": ["Teams"],
+                "summary": "Updates the members of the team",
+                "description": "Overwrites the current members of the team with the new data from the request. Need to be admin or host the event.",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true,
+                        "description": "ID of the team to get"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "description": "The list of members for the team",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "users": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer"
+                                                },
+                                                "is_leader": {
+                                                    "type": "boolean",
+                                                    "nullable": true
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successfully updated"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "404": {
+                        "description": "Team with id not found"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/UnprocessableEntityError"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "User": {
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email"
+                    },
+                    "is_admin": {
+                        "type": "boolean"
+                    },
+                    "is_guest": {
+                        "type": "boolean"
+                    },
+                    "email_verified_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "teams": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Team"
+                        }
+                    }
+                }
+            },
+            "Team": {
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "department": {
+                        "type": "string"
+                    }
+                }
+            },
+            "Question": {
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "type": {
+                        "type": "string",
+                        "enum": ["free_text", "multiple_choice"]
+                    },
+                    "order": {
+                        "type": "integer"
+                    },
+                    "prompt": {
+                        "type": "string"
+                    },
+                    "min_responses": {
+                        "type": "integer"
+                    },
+                    "max_responses": {
+                        "type": "integer"
+                    }
+                }
+            },
+            "Answer": {
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "order": {
+                        "type": "integer"
+                    },
+                    "value": {
+                        "type": "string"
+                    }
+                }
+            },
+            "Event": {
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "code": {
+                        "type": "string"
+                    },
+                    "is_draft": {
+                        "type": "boolean"
+                    },
+                    "allow_guests": {
+                        "type": "boolean"
+                    },
+                    "starts_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "ends_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "max_sessions": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "questions": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Question"
+                        }
+                    }
+                }
+            },
+            "Session": {
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "mood": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "started_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "is_submitted": {
+                        "type": "boolean"
+                    }
+                }
+            }
+        },
+        "responses": {
+            "UnauthorizedError": {
+                "description": "Unauthenticated",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "message": {
+                                    "type": "string",
+                                    "enum": ["Unauthenticated"]
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "UnprocessableEntityError": {
+                "description": "Unprocessable Entity",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "message": {
+                                    "type": "string",
+                                    "enum": ["The given data was invalid."]
+                                },
+                                "errors": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "ValidLogin": {
+                "description": "Successful Log in - Use this token for bearer authentication",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "token": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "InvalidLogin": {
+                "description": "Unsuccessful Log in",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "message": {
+                                    "type": "string",
+                                    "enum": [
+                                        "Invalid account credentials provided",
+                                        "Email not verified"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT"
+            }
+        }
+    }
+}
