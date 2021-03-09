@@ -62,7 +62,7 @@ class EventHostsController extends Controller
         $users = User::whereIn('email', $request->input('hosts'))->get();
 
         if ($users->count() !== count($request->input('hosts'))) {
-            return response('One or more of the provided users do not exist in the system', 403);
+            return response()->json(['message' => 'One or more of the provided users do not exist in the system'], 403);
         }
 
         // Overwrite the hosts for the event from the provided array

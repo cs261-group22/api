@@ -27,7 +27,7 @@ class UsersController extends Controller
     {
         // Only admins can view all users in the system
         if (! Auth::user()->is_admin) {
-            return response('Only admin users can retrieve all users in the system', 403);
+            return response()->json(['message' => 'Unauthenticated'], 403);
         }
 
         // Todo: paginate results to prevent loading all users at once
@@ -107,7 +107,7 @@ class UsersController extends Controller
     {
         // Only admins can update the details of other users
         if (! Auth::user()->is_admin) {
-            return response('Only admin update the details of other users', 403);
+            return response()->json(['message' => 'Unauthenticated'], 403);
         }
 
         $user = User::findOrFail($id);

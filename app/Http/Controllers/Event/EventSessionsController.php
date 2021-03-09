@@ -29,7 +29,7 @@ class EventSessionsController extends Controller
 
         // Only admins and event hosts can view the sessions for the event
         if (! $user->is_admin || ! $event->hostedByUser($user)) {
-            return response('You are not authorized to view the sessions for the specified event', 403);
+            return response()->json(['message' => 'Unauthenticated'], 403);
         }
 
         return SessionResource::collection($event->sessions);

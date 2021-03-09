@@ -25,6 +25,9 @@ class TeamsController extends Controller
     {
         $user = Auth::user();
 
+        if ($user->is_guest) {
+            return response()->json(['message' => 'Unauthenticated'], 403);
+        }
         // Retrieve all teams that the user manages
         $teams = Team::whereManagedByUser($user)->get();
 
@@ -41,8 +44,8 @@ class TeamsController extends Controller
     {
         $team = Team::with('users')->findOrFail($id);
 
-        if (! $team->managedByUser(Auth::user())) {
-            return response('You must manage this team to view it', 403);
+        if (!$team->managedByUser(Auth::user())) {
+            return response()->json(['message' => 'Unauthenticated'], 403);
         }
 
         return new TeamResource($team);
@@ -58,8 +61,8 @@ class TeamsController extends Controller
     public function store(Request $request)
     {
         // Only admin users can create new teams
-        if (! Auth::user()->is_admin) {
-            return response('You must be an admin to create a new team', 403);
+        if (!Auth::user()->is_admin) {
+            return response()->json(['message' => 'Unauthenticated'], 403);
         }
 
         $this->validateTeam($request);
@@ -83,8 +86,8 @@ class TeamsController extends Controller
         $team = Team::findOrFail($id);
 
         // The user can only update teams that they manage
-        if (! $team->managedByUser(Auth::user())) {
-            return response('You must be manage this team to modify it', 403);
+        if (!$team->managedByUser(Auth::user())) {
+            return response()->json(['message' => 'Unauthenticated'], 403);
         }
 
         $this->validateTeam($request);
@@ -106,8 +109,8 @@ class TeamsController extends Controller
         $team = Team::findOrFail($id);
 
         // Only admin users can deletea  team
-        if (! Auth::user()->is_admin) {
-            return response('You must be an admin to delete a team', 403);
+        if (!Auth::user()->is_admin) {
+            return response()->json(['message' => 'Unauthenticated'], 403);
         }
 
         $team->delete();

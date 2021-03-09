@@ -42,12 +42,12 @@ class VerificationController extends Controller
 
         // The activation token must not have expired
         if (! $user->activationTokenValid($timestamp)) {
-            return response('The activation link has expired', 401);
+            return response()->json(['message' => 'The activation link has expired'], 403);
         }
 
         // Only allow verification if the user is not verified already
         if ($user->hasVerifiedEmail()) {
-            return response('That account has already been validated', 403);
+            return response()->json(['message' => 'That account has already been validated'], 403);
         }
 
         $user->markEmailAsVerified();
@@ -83,7 +83,7 @@ class VerificationController extends Controller
         $user = User::where('email', $email)->firstOrFail();
 
         if ($user->hasVerifiedEmail()) {
-            return response('Your account has already been verified');
+            return response()->json(['message' => 'That account has already been validated'], 403);
         }
 
         event(new UserReferred($user));

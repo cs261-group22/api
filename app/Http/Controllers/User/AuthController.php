@@ -76,7 +76,7 @@ class AuthController extends Controller
         $user = Auth::user();
 
         if (! $user) {
-            return response('No user is currently authenticated', 403);
+            return response()->json(['message' => 'Unauthenticated'], 403);
         }
 
         $user->tokens()->delete();

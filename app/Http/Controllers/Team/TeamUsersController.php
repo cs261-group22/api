@@ -27,8 +27,8 @@ class TeamUsersController extends Controller
         $team = Team::findOrFail($id);
 
         // Only admins and team leaders can modify users in a team
-        if (! $user->is_admin || ! $team->managedByUser($user)) {
-            return response('You are not authorized to modify the users in this team', 403);
+        if (!($user->is_admin ||  $team->managedByUser($user))) {
+            return response()->json(['message' => 'Unauthenticated'], 403);
         }
 
         $this->validate($request, [

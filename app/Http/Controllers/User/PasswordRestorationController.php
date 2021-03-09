@@ -31,7 +31,7 @@ class PasswordRestorationController extends Controller
         $user = User::where('email', $email)->firstOrFail();
 
         if (! $user->passwordResetTokenValid($timestamp)) {
-            return response('The provided password reset token has expired', 401);
+            return response()->json(['message' => 'The provided password reset token has expired'], 401);
         }
 
         $user->update(['password' => $request->input('password')]);

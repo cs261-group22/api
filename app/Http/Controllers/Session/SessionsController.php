@@ -22,7 +22,7 @@ class SessionsController extends Controller
         $session = Session::findOrFail($id);
         // Only admins and event hosts can view the sessions for the event
         if ($user->id !== $session->user_id) {
-            return response('You are not authorized to view this session', 403);
+            return response()->json(['message' => 'Unauthenticated'], 403);
         }
         // Retrieves information about the specified session.
         // Accepts requests from the user that owns the session.

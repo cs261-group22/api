@@ -26,8 +26,8 @@ class AnswersController extends Controller
         $event = $answer->question->event;
 
         // The user can only show answers that they manage
-        if (! $event->hostedByUser(Auth::user())) {
-            return response('You must host this event to get the answers of questions from it', 403);
+        if (!$event->hostedByUser(Auth::user())) {
+            return response()->json(['message' => 'Unauthenticated'], 403);
         }
 
         return new AnswerResource($answer);
@@ -48,8 +48,8 @@ class AnswersController extends Controller
         $event = $answer->question->event;
 
         // The user can only update events that they manage
-        if (! $event->hostedByUser(Auth::user())) {
-            return response('You must host this event to add answers a question from it', 403);
+        if (!$event->hostedByUser(Auth::user())) {
+            return response()->json(['message' => 'Unauthenticated'], 403);
         }
 
         $answer->save();
@@ -71,8 +71,8 @@ class AnswersController extends Controller
         $event = $answer->question->event;
 
         // The user can only update answers that they manage
-        if (! $event->hostedByUser(Auth::user())) {
-            return response('You must host this event to update the answers of questions from it', 403);
+        if (!$event->hostedByUser(Auth::user())) {
+            return response()->json(['message' => 'Unauthenticated'], 403);
         }
 
         $this->validateAnswer($request);
@@ -92,6 +92,12 @@ class AnswersController extends Controller
     public function move(Request $request, $id)
     {
         $answer = Answer::findOrFail($id);
+        $event = $answer->question->event;
+
+        // The user can only update answers that they manage
+        if (!$event->hostedByUser(Auth::user())) {
+            return response()->json(['message' => 'Unauthenticated'], 403);
+        }
 
         $request->validate([
             'direction' => 'required|in:up,down',
@@ -116,8 +122,8 @@ class AnswersController extends Controller
         $event = $answer->question->event;
 
         // The user can only show answers that they manage
-        if (! $event->hostedByUser(Auth::user())) {
-            return response('You must host this event to update the answers of questions from it', 403);
+        if (!$event->hostedByUser(Auth::user())) {
+            return response()->json(['message' => 'Unauthenticated'], 403);
         }
 
         $answer->delete();
@@ -135,7 +141,7 @@ class AnswersController extends Controller
     {
         $this->validate($request, [
             'question_id' => 'required|exists:questions,id',
-            'value' => 'nullable|string',
+            'value' => 'required|string',
         ]);
     }
 
