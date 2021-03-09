@@ -1938,7 +1938,12 @@
                     "422": {
                         "$ref": "#/components/responses/UnprocessableEntityError"
                     }
-                }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             },
             "get": {
                 "tags": ["Teams"],
