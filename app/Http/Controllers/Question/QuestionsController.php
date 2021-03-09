@@ -25,8 +25,8 @@ class QuestionsController extends Controller
         $question = Question::findOrFail($id);
 
         // The user can only update events that they manage
-        if (! $question->event->hostedByUser(Auth::user())) {
-            return response('You must host this event to get questions from it', 403);
+        if (!$question->event->hostedByUser(Auth::user())) {
+            return response()->json(['message' => 'Unauthenticated'], 403);
         }
 
         return new QuestionResource($question);
@@ -45,8 +45,8 @@ class QuestionsController extends Controller
         $question = $this->populateQuestion(new Question(), $request);
 
         // The user can only update events that they manage
-        if (! $question->event->hostedByUser(Auth::user())) {
-            return response('You must host this event to add questions to it', 403);
+        if (!$question->event->hostedByUser(Auth::user())) {
+            return response()->json(['message' => 'Unauthenticated'], 403);
         }
 
         $question->save();
@@ -67,8 +67,8 @@ class QuestionsController extends Controller
         $question = Question::findOrFail($id);
 
         // The user can only update events that they manage
-        if (! $question->event->hostedByUser(Auth::user())) {
-            return response('You must host this event to update questions in it', 403);
+        if (!$question->event->hostedByUser(Auth::user())) {
+            return response()->json(['message' => 'Unauthenticated'], 403);
         }
 
         $this->validateQuestion($request);
@@ -88,7 +88,10 @@ class QuestionsController extends Controller
     public function move(Request $request, $id)
     {
         $question = Question::findOrFail($id);
-
+        // The user can only update events that they manage
+        if (!$question->event->hostedByUser(Auth::user())) {
+            return response()->json(['message' => 'Unauthenticated'], 403);
+        }
         $request->validate([
             'direction' => 'required|in:up,down',
         ]);
@@ -111,8 +114,8 @@ class QuestionsController extends Controller
         $question = Question::findOrFail($id);
 
         // The user can only update events that they manage
-        if (! $question->event->hostedByUser(Auth::user())) {
-            return response('You must host this event to delete questions from it', 403);
+        if (!$question->event->hostedByUser(Auth::user())) {
+            return response()->json(['message' => 'Unauthenticated'], 403);
         }
 
         $question->delete();
