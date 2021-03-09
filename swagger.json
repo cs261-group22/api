@@ -45,7 +45,7 @@
         },
         {
             "name": "Teams",
-            "description": "Operations for managing and viewing sessions"
+            "description": "Operations for managing and viewing teams"
         }
     ],
     "paths": {
