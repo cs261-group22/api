@@ -24,7 +24,7 @@ Broadcast::channel('event-feedback-presence.{eventId}', function ($user, $eventI
     $event = Event::findOrFail($eventId);
 
     if ($event->hostedByUser($user)) {
-        return true;
+        return $user->id;
     }
 });
 
@@ -38,6 +38,6 @@ Broadcast::channel('attendee-presence.{eventId}', function ($user, $eventId) {
 
     // The user must host the event, or have an unsubmitted session
     if ($userHasSession || $event->hostedByUser($user)) {
-        return true;
+        return $user->id;
     }
 });

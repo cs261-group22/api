@@ -32,7 +32,7 @@ class RequestSessionAnalysis
         // Request an analysis for each free text response in the session
         foreach ($session->responses()->toFreeTextQuestions()->get() as $response) {
             $analysis = $this->analyticsService->RequestIndividualAnalysis([
-                'response' => $response->value,
+                'corpus' => $response->value,
             ]);
 
             $response->update([
