@@ -3,7 +3,7 @@
     "info": {
         "description": "This is an api for a feedback service used to track user engagement for events",
         "version": "1.0.0",
-        "title": "Feedbank",
+        "title": "FeedBank",
         "license": {
             "name": "Creative Commons Attribution-NonCommercial-NoDerivs",
             "url": "https://creativecommons.org/licenses/by-nc-nd/3.0/"
