@@ -420,18 +420,23 @@ class EventTest extends TestCase
     public function testAdminGetSessions()
     {
         $data = $this->insertEvents(0);
-
-    }
-
-    public function insertSessions($actingUser)
-    {
-        $data = $this->insertEvents($actingUser);
-        $session = Session::factory()->create();
     }
 
     public function runGetSessions()
     {
     }
+
+    public function insertSessions($actingUser)
+    {
+        $data = $this->insertEvents($actingUser);
+        $sessionA = Session::factory()->create(['event_id' => $data['events'][0]->id]);
+        $sessionB = Session::factory()->create(['event_id' => $data['events'][1]->id]);
+        $sessionC = Session::factory()->create(['event_id' => $data['events'][1]->id]);
+        $sessionD = Session::factory()->create(['event_id' => $data['events'][2]->id]);
+        $sessions = [$sessionA, $sessionB, $sessionC, $sessionD];
+        return ['users' => $data['users'], 'events' => $data['events'], 'sessions' => $sessions];
+    }
+
 
     private function insertUsers($actingUser)
     {
