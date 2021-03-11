@@ -26,9 +26,4 @@ class MockAnalyticsService implements AnalyticsService
             ],
         ];
     }
-
-    public function RequestAggregateAnalysis(array $payload): array
-    {
-        return [];
-    }
 }

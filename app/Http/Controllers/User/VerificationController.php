@@ -29,7 +29,7 @@ class VerificationController extends Controller
             'name' => 'required|string',
             'email' => 'required|string',
             'timestamp' => 'required|string',
-            'password' => 'required|string|same:password_confirmation',
+            'password' => 'required|string|same:password_confirmation|min:8|regex:/[a-z]/|regex:/[A-Z]/|regex:/[0-9]/',
             'password_confirmation' => 'required|string|same:password',
         ]);
 

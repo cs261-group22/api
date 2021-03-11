@@ -89,7 +89,7 @@ class FullFeedbackExport implements FromQuery, WithMapping, WithHeadings, Should
             'Subjects',
             'Entities',
             'Word Pairs',
-            'Important Words',
+            'Frequent Words',
         ];
     }
 }

@@ -4,8 +4,9 @@ namespace App\Listeners;
 
 use App\Contracts\AnalyticsService;
 use App\Events\SessionAnalysisReceived;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
-class RequestSessionAnalysis
+class RequestSessionAnalysis implements ShouldQueue
 {
     protected AnalyticsService $analyticsService;
 

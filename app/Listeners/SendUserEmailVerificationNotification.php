@@ -4,9 +4,10 @@ namespace App\Listeners;
 
 use App\Mail\SendUserActivationEmail;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Mail;
 
-class SendUserEmailVerificationNotification
+class SendUserEmailVerificationNotification implements ShouldQueue
 {
     /**
      * Dispatches an email with an account verification link.

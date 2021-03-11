@@ -91,7 +91,7 @@ trait FeedbackExportTrait
         // Format mood...
         $score = $response->sentiment['sentiment']['score'] ?? 0;
         $mood = round(
-            ($score > 0 ? 0.5 + $score / 2 : abs($score) / 2) * 100
+            ($score > 0 ? 0.5 + $score / 2 :  (1 - abs($score)) / 2) * 100
         );
 
         // Format urgency...
@@ -101,37 +101,31 @@ trait FeedbackExportTrait
 
         // Format subjects...
         $subjects = implode(
-            ', ', $response->sentiment['subjects'] ?? []
+            ', ', array_keys($response->sentiment['subjects'] ?? [])
         );
 
         // Format entities...
         $entities = implode(
-            ', ', array_map(
-                fn ($entityPair) => "{$entityPair[0]} - {$entityPair[1]}",
-                $response->sentiment['entities'] ?? []
-            )
+            ', ', $response->sentiment['entities'] ?? []
         );
 
         // Format word pairs...
         $wordPairs = implode(
-            ', ', array_map(
-                fn ($wordPair) => "{$wordPair[0]} - {$wordPair[1]}",
-                $response->sentiment['word_pairs'] ?? []
-            )
+            ', ', $response->sentiment['word_pairs'] ?? []
         );
 
-        // Format important words...
-        $importantWords = implode(
-            ', ', $response->sentiment['important_words'] ?? []
+        // Format frequent words...
+        $frequentWords = implode(
+            ', ', array_keys($response->sentiment['frequent_words'] ?? [])
         );
 
         return [
-            $mood ? $mood.'%' : 'N/A',
-            $urgency ? $urgency.'%' : 'N/A',
-            $subjects ?: 'N/A',
-            $entities ?: 'N/A',
-            $wordPairs ?: 'N/A',
-            $importantWords ?: 'N/A',
+            $response->value ? ($mood ? $mood.'%' : '0%') : '',
+            $response->value ? ($urgency ? $urgency.'%' : '0%') : '',
+            $response->value ? ($subjects ?: 'None identified') : '',
+            $response->value ? ($entities ?: 'None identified') : '',
+            $response->value ? ($wordPairs ?: 'None identified') : '',
+            $response->value ? ($frequentWords ?: 'None identified') : '',
         ];
     }
 

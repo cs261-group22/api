@@ -10,17 +10,26 @@ class ProductionAnalyticsService implements AnalyticsService
 {
     public function RequestIndividualAnalysis(array $payload): array
     {
-        $response = Http::post(
-            config('cs261.analytics.endpoint').'/analytics', $payload
-        );
+        $failedRequestCount = 0;
 
-        return $response->json();
-    }
+        while (true) {
+            try {
+                Log::info('attempting');
+                $response = Http::post(
+                    config('cs261.analytics.endpoint').'/analytics', $payload
+                );
 
-    public function RequestAggregateAnalysis(array $payload): array
-    {
-        return Http::post(
-            config('cs261.analytics.endpoint').'/aggregate', $payload
-        )->json();
+                Log::info('got response');
+
+                return $response->json();
+            } catch (\Exception $e) {
+                $failedRequestCount++;
+                Log::warn('Detected failed request to analytics...');
+
+                if ($failedRequestCount > 5) {
+                    return [];
+                }
+            }
+        }
     }
 }

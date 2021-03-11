@@ -34,7 +34,7 @@ class EventSessionsController extends Controller
 
         // Retrieve all submitted sessions for the event
         $sessions = $event->sessions()
-            ->with('user', 'responses')
+            ->with('user', 'responses', 'responses.answer')
             ->where('is_submitted', true)
             ->get();
 
