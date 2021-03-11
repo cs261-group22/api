@@ -2,23 +2,24 @@
 
 namespace App\Events;
 
+use App\Models\Session;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class PasswordRecoveryRequested
+class SessionSubmitted
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public string $email;
+    public Session $session;
 
     /**
      * Create a new event instance.
      *
-     * @param string $email
+     * @param Session $session
      */
-    public function __construct(string $email)
+    public function __construct(Session $session)
     {
-        $this->email = $email;
+        $this->session = $session;
     }
 }

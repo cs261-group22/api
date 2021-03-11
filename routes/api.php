@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\Answer\AnswersController;
+use App\Http\Controllers\Event\EventAnalyticsController;
+use App\Http\Controllers\Event\EventExportController;
 use App\Http\Controllers\Event\EventHostsController;
 use App\Http\Controllers\Event\EventQuestionsController;
 use App\Http\Controllers\Event\EventsController;
@@ -52,11 +54,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/events/{id}', [EventsController::class, 'show'])->name('events.show');
     Route::put('/events/{id}', [EventsController::class, 'update'])->name('events.update');
     Route::delete('/events/{id}', [EventsController::class, 'destroy'])->name('events.destroy');
+    Route::get('/events/{id}/export', [EventExportController::class, 'export'])->name('events.export');
     Route::post('/events/{id}/publish', [EventsController::class, 'publish'])->name('events.publish');
     Route::get('/events/{id}/hosts', [EventHostsController::class, 'index'])->name('events.hosts.index');
     Route::patch('/events/{id}/hosts', [EventHostsController::class, 'update'])->name('events.hosts.update');
     Route::get('/events/{id}/sessions', [EventSessionsController::class, 'index'])->name('events.sessions.index');
     Route::post('/events/{id}/sessions', [EventSessionsController::class, 'store'])->name('events.sessions.store');
+    Route::get('/events/{id}/analytics', [EventAnalyticsController::class, 'index'])->name('events.sessions.analytics');
     Route::get('/events/{id}/questions', [EventQuestionsController::class, 'index'])->name('events.questions.index');
 
     Route::post('/questions', [QuestionsController::class, 'store'])->name('questions.store');

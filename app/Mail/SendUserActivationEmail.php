@@ -4,11 +4,16 @@ namespace App\Mail;
 
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
+use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Crypt;
 
-class SendUserActivationEmail extends Mailable
+class SendUserActivationEmail extends Mailable implements ShouldQueue
 {
+    use Queueable, SerializesModels;
+
     protected User $user;
 
     public function __construct(User $user)
