@@ -38,7 +38,7 @@ return [
             'options' => [
                 'cluster' => env('PUSHER_APP_CLUSTER'),
                 'host' => env('PUSHER_APP_HOST'),
-                'port' => 6001,
+                'port' => env('PUSHER_APP_PORT'),
                 'scheme' => 'https',
                 'curl_options' => [
                     CURLOPT_SSL_VERIFYHOST => 0,
