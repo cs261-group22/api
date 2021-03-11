@@ -1,7 +1,7 @@
 FROM composer:2.0.8 as build
 WORKDIR /app
 COPY . /app
-RUN composer install
+RUN composer install --ignore-platform-reqs
 
 FROM php:8.0-apache
 
