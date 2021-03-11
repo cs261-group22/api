@@ -14,7 +14,6 @@ class SendUserActivationEmail extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
-
     protected User $user;
 
     public function __construct(User $user)

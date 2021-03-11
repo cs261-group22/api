@@ -40,7 +40,7 @@ class SessionSubmissionController extends Controller
 
             // Skip validation if it isn't multiple choice
             if ($question->type === Question::TYPE_FREE_TEXT) {
-                return false;
+                return true;
             }
 
             $minResponses = $question->min_responses ?? 0;

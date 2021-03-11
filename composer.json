@@ -10,6 +10,7 @@
     "require": {
         "aws/aws-sdk-php-laravel": "^3.6",
         "beyondcode/laravel-websockets": "^2.0@beta",
+        "biscolab/laravel-recaptcha": "^5.0",
         "doctrine/dbal": "^2.11",
         "fideloper/proxy": "^4.2",
         "fruitcake/laravel-cors": "^2.0",

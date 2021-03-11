@@ -91,7 +91,7 @@ trait FeedbackExportTrait
         // Format mood...
         $score = $response->sentiment['sentiment']['score'] ?? 0;
         $mood = round(
-            ($score > 0 ? 0.5 + $score / 2 :  (1 - abs($score)) / 2) * 100
+            ($score > 0 ? 0.5 + $score / 2 : (1 - abs($score)) / 2) * 100
         );
 
         // Format urgency...

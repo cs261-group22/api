@@ -46,10 +46,16 @@ class AuthController extends Controller
     /**
      * Logs the user in under a new guest account.
      *
+     * @param Request $request
      * @return JsonResponse
      */
-    public function loginGuest(): JsonResponse
+    public function loginGuest(Request $request): JsonResponse
     {
+        // Require a valid recaptcha token
+        $this->validate($request, [
+            'recaptcha-response' => 'recaptcha',
+        ]);
+
         // Create a guest account with no name/email/password
         $user = User::create([
             'is_guest' => true,
@@ -105,6 +111,7 @@ class AuthController extends Controller
         $this->validate($request, [
             'email' => 'required|email',
             'password' => 'required|string',
+            'recaptcha-response' => 'recaptcha',
         ]);
     }
 }
