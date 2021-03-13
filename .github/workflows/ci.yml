@@ -27,9 +27,6 @@ jobs:
       - name: Generate key
         run: php artisan key:generate
 
-      - name: Remove .env
-        run: php -r "file_exists('.env') || unlink('.env');"
-
       - name: Directory permissions
         run: chmod -R 777 storage bootstrap/cache
 

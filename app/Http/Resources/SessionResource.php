@@ -19,6 +19,7 @@ class SessionResource extends JsonResource
             'id' => $this->id,
             'mood' => $this->mood,
             'started_at' => $this->started_at,
+            'updated_at' => $this->updated_at,
             'is_submitted' => $this->is_submitted,
 
             'event' => new EventResource(

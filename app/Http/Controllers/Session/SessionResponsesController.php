@@ -22,9 +22,10 @@ class SessionResponsesController extends Controller
      */
     public function index(int $id)
     {
-        $responses = Response::with('answer', 'session', 'question')->where('session_id', $id)->get();
-        // Retrieves a list of responses recorded for the session with the provided ID.
-        // Accepts requests from the user that own the session, users that host the event associated with the session, or administrators.
+        $responses = Response::with('answer', 'session', 'question')
+            ->where('session_id', $id)
+            ->get();
+
         return ResponseResource::collection($responses);
     }
 
@@ -39,8 +40,6 @@ class SessionResponsesController extends Controller
     {
         $session = Session::findOrFail($id);
 
-        // Given a question and answer, creates and associates a new response with the provided session.
-        // Accepts requests from the user that owns the session.
         $this->validateResponses($request);
 
         $responses = $request['responses'];

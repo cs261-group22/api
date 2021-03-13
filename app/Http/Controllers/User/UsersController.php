@@ -30,7 +30,6 @@ class UsersController extends Controller
             return response('Only admin users can retrieve all users in the system', 403);
         }
 
-        // Todo: paginate results to prevent loading all users at once
         $users = User::applyFilters($request->all())->get();
 
         return UserResource::collection($users);
