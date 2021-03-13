@@ -37,6 +37,7 @@ class EventSessionsController extends Controller
         $sessions = $event->sessions()
             ->with('user', 'responses', 'responses.answer')
             ->where('is_submitted', true)
+            ->orderBy('updated_at')
             ->get();
 
         return SessionResource::collection($sessions);
