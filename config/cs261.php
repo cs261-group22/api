@@ -11,4 +11,7 @@ return [
         'mock' => (bool) env('CS261_ANALYTICS_MOCK', true),
         'endpoint' => env('CS261_ANALYTICS_ENDPOINT', ''),
     ],
+    'test' => [
+        'recaptcha_override' => env('CS261_TEST_RECAPTCHA_OVERRIDE', '')
+    ]
 ];

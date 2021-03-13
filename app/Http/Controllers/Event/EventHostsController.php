@@ -29,8 +29,8 @@ class EventHostsController extends Controller
         $event = Event::findOrFail($id);
 
         // Only admins and event hosts can view the joined users
-        if (! $user->is_admin || ! $event->hostedByUser($user)) {
-            return response('You are not authorized to view the hosts for the specified event', 403);
+        if (! $event->hostedByUser($user)) {
+            return response()->json(['message' => 'Unauthenticated'], 403);
         }
 
         return UserResource::collection($event->hosts);
@@ -50,8 +50,8 @@ class EventHostsController extends Controller
         $event = Event::findOrFail($id);
 
         // Only admins and event hosts can modify hosts for an event
-        if (! $user->is_admin || ! $event->hostedByUser($user)) {
-            return response('You are not authorized to modify the hosts for this event', 403);
+        if (! $event->hostedByUser($user)) {
+            return response()->json(['message' => 'Unauthenticated'], 403);
         }
 
         $this->validate($request, [

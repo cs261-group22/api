@@ -26,7 +26,12 @@ class AuthController extends Controller
         $this->validateLogin($request);
 
         // Retrieve the user associated with the provided email from the database
-        $user = User::where('email', $request->input('email'))->firstOrFail();
+        $user = User::where('email', $request->input('email'))->first();
+
+        // The users email address must be verified to login
+        if ($user == null) {
+            return response('Invalid account credentials provided', 401);
+        }
 
         // The users email address must be verified to login
         if (! $user->email_verified) {
@@ -51,9 +56,12 @@ class AuthController extends Controller
      */
     public function loginGuest(Request $request): JsonResponse
     {
-        // Require a valid recaptcha token
+        $overrideToken = config('cs261.test.recaptcha_override');
+        $overrideRecaptcha = ! $overrideToken || $request->input('recaptcha-response') !== $overrideToken;
+
+        // Require a valid recaptcha token if it is not the override token
         $this->validate($request, [
-            'recaptcha-response' => 'recaptcha',
+            'recaptcha-response' => $overrideRecaptcha ? 'recaptcha' : 'required',
         ]);
 
         // Create a guest account with no name/email/password
@@ -108,10 +116,13 @@ class AuthController extends Controller
      */
     protected function validateLogin(Request $request)
     {
+        $overrideToken = config('cs261.test.recaptcha_override');
+        $overrideRecaptcha = ! $overrideToken || $request->input('recaptcha-response') !== $overrideToken;
+
         $this->validate($request, [
             'email' => 'required|email',
             'password' => 'required|string',
-            'recaptcha-response' => 'recaptcha',
+            'recaptcha-response' => $overrideRecaptcha ? 'recaptcha' : 'required',
         ]);
     }
 }
