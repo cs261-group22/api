@@ -76,7 +76,7 @@ trait FeedbackExportTrait
             $response->question->order,
             $response->question->type,
             $response->question->prompt,
-            $response->value ?: $response->answer->value,
+            $response->value ?: ($response->answer->value ?? ''),
         ];
     }
 
