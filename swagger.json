@@ -142,6 +142,22 @@
                 "tags": ["Authentication"],
                 "summary": "Log in as a guest user",
                 "description": "This allows the user to log in as a guest account.",
+                "requestBody": {
+                    "required": true,
+                    "description": "User log in information",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "recaptcha-response": {
+                                        "type": "string"   
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "200": {
                         "$ref": "#/components/responses/ValidLogin"
@@ -169,6 +185,9 @@
                                     "password": {
                                         "type": "string",
                                         "example": "plain text password"
+                                    },
+                                    "recaptcha-response": {
+                                        "type": "string"   
                                     }
                                 }
                             }
