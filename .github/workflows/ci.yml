@@ -18,11 +18,17 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Copy .env
+        run: php -r "file_exists('.env') || copy('.env.example', '.env');"
+
       - name: Install dependencies
         run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
 
       - name: Generate key
         run: php artisan key:generate
+
+      - name: Remove .env
+        run: php -r "file_exists('.env') || unlink('.env');"
 
       - name: Directory permissions
         run: chmod -R 777 storage bootstrap/cache
