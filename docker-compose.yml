@@ -33,6 +33,9 @@ services:
             - NUXT_ENV_API_ROUTE=/api/v1
             - NUXT_HOST=0.0.0.0
             - NUXT_PORT=3000
+            - NUXT_ENV_WS_PORT=6001`
+            - NUXT_ENV_WS_HOST=localhost
+            - 'NUXT_ENV_RECAPTCHA_SITE_KEY=${RECAPTCHA_SITE_KEY}'
         entrypoint: [ "bash", "-c", "set -ex; cd /app && yarn install && yarn dev --verbose" ] 
 
     pgsql:
