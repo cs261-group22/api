@@ -1,4 +1,8 @@
 ## About
+This readme is written with the intention of the reader having a basic working knowledge of the *Laravel* framework.
+The [Laravel documentation](https://laravel.com/) is a good starting place if this is not the case.
+
+An overview of the API:
 * FeedBank API is a standard *Laravel* application written in PHP
 * It exposes a RESTful API, which is consumed by the FeedBank UI
 * It communicates with the Analytics component to analyze resposnes received from users.
@@ -64,4 +68,4 @@ The directory structure is identical to that of a typical *Laravel 8.0* installa
 
 ## Further reading
 
-For a detailed explanation on how things, refer to the [Laravel 8.x Docs](https://laravel.com/docs/8.x)
+For a detailed explanation on how things work, refer to the [Laravel 8.x Docs](https://laravel.com/docs/8.x)
