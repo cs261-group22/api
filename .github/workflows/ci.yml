@@ -60,43 +60,43 @@ jobs:
       - name: Lint code
         run: composer cs:check
 
-  deploy:
-    name: Deploy
-    needs: [lint, test]
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Setup GCP Service Account
-        uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
-        with:
-          version: 'latest'
-          service_account_email: ${{ secrets.GCP_SA_EMAIL }}
-          service_account_key: ${{ secrets.GCP_SA_KEY }}
-          export_default_credentials: true
-
-      - name: Configure docker
-        run: |
-          gcloud auth configure-docker
-
-      - name: Build container
-        run: |
-          docker build -t gcr.io/${{ secrets.GCP_PROJECT_ID }}/cs261-api:latest .
-
-      - name: Push container
-        run: |
-          docker push gcr.io/${{ secrets.GCP_PROJECT_ID }}/cs261-api:latest
-
-      - name: Deploy container
-        run: |
-          gcloud run deploy cs261-api \
-          --region europe-west2 \
-          --image gcr.io/${{ secrets.GCP_PROJECT_ID }}/cs261-api \
-          --platform managed \
-          --allow-unauthenticated \
-          --project ${{ secrets.GCP_PROJECT_ID }}
+#  deploy:
+#    name: Deploy
+#    needs: [lint, test]
+#    runs-on: ubuntu-latest
+#
+#    steps:
+#      - name: Checkout code
+#        uses: actions/checkout@v2
+#
+#      - name: Setup GCP Service Account
+#        uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+#        with:
+#          version: 'latest'
+#          service_account_email: ${{ secrets.GCP_SA_EMAIL }}
+#          service_account_key: ${{ secrets.GCP_SA_KEY }}
+#          export_default_credentials: true
+#
+#      - name: Configure docker
+#        run: |
+#          gcloud auth configure-docker
+#
+#      - name: Build container
+#        run: |
+#          docker build -t gcr.io/${{ secrets.GCP_PROJECT_ID }}/cs261-api:latest .
+#
+#      - name: Push container
+#        run: |
+#          docker push gcr.io/${{ secrets.GCP_PROJECT_ID }}/cs261-api:latest
+#
+#      - name: Deploy container
+#        run: |
+#          gcloud run deploy cs261-api \
+#          --region europe-west2 \
+#          --image gcr.io/${{ secrets.GCP_PROJECT_ID }}/cs261-api \
+#          --platform managed \
+#          --allow-unauthenticated \
+#          --project ${{ secrets.GCP_PROJECT_ID }}
 
   migrate:
     name: Migrate
