@@ -21,7 +21,8 @@ class ProductionAnalyticsService implements AnalyticsService
                 return $response->json();
             } catch (\Exception $e) {
                 $failedRequestCount++;
-                Log::warn('Detected failed request to analytics...');
+                Log::error('Detected failed request to analytics:');
+                Log::error($e->getMessage());
 
                 if ($failedRequestCount > 5) {
                     return [];
